@@ -1,6 +1,6 @@
-#![allow(clippy::ptr_arg)]
-#![allow(clippy::clone_on_copy)]
-#![allow(clippy::unit_arg, clippy::redundant_clone)]
+#[allow(clippy::ptr_arg)]
+#[allow(clippy::clone_on_copy)]
+#[allow(clippy::unit_arg, clippy::redundant_clone)]
 use url::{Url};
 use std::sync::Arc;
 use std::time::Duration;
