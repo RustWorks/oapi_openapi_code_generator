@@ -11,24 +11,18 @@ use std::{
 
 pub struct OpenApiGenerator {
     handlebars: Handlebars,
-    specs: serde_yaml::Value,
-    template_path: PathBuf,
+    specs: serde_yaml::Value
 }
 
 impl OpenApiGenerator {
-    pub fn new<T: AsRef<Path>, U: AsRef<Path>>(specs_path: T, template_path: U) -> Result<Self> {
+    pub fn new(specs_path: &PathBuf) -> Result<Self> {
         let mut openapi_generator = Self {
             handlebars: Handlebars::new(),
-            specs: Self::parse_specification(&specs_path.as_ref())?,
-            template_path: template_path.as_ref().join("template"),
+            specs: Self::parse_specification(&specs_path.as_ref())?
         };
-        let partials_path = template_path.as_ref().join("partials");
         openapi_generator
-            .register_partials(&partials_path)
-            .context(format!(
-                "Failed to register partials from `{}`",
-                partials_path.display()
-            ))?;
+            .register_partials()
+            .context("Failed to register partials")?;
         openapi_generator.register_helpers();
         let specs = openapi_generator
             .specs
@@ -70,80 +64,47 @@ impl OpenApiGenerator {
         self.handlebars.register_helper("is_http_code_success", Box::new(is_http_code_success));
     }
 
-    fn register_partials<T: AsRef<Path>>(&mut self, partials_dir: T) -> Result<()> {
-        for entry in walkdir::WalkDir::new(partials_dir) {
-            if let Ok(entry) = entry {
-                if entry.file_type().is_file() {
-                    let path = entry.path();
-                    let template_name = path
-                        .file_stem()
-                        .ok_or_else(|| anyhow!("File name is empty"))?
-                        .to_str()
-                        .ok_or_else(|| anyhow!("File path is not unicode"))?;
-                    self.handlebars
-                        .register_template_file(template_name, path)
-                        .context(format!("Cannot register partial `{}`", path.display()))?;
-                    log::info!(
-                        "new partial registered: {} ({})",
-                        template_name,
-                        path.display()
-                    );
-                }
-            }
+    fn register_partials(&mut self) -> Result<()> {
+
+        let partials = &[
+            ("data_type", include_str!("templates/partials/data_type.hbs")),
+            ("example", include_str!("templates/partials/example.hbs")),
+            ("operation_examples", include_str!("templates/partials/operation_examples.hbs")),
+            ("operation_types", include_str!("templates/partials/operation_types.hbs")),
+            ("parameter_type", include_str!("templates/partials/parameter_type.hbs")),
+            ("schema_example", include_str!("templates/partials/schema_example.hbs")),
+            ("schema", include_str!("templates/partials/schema.hbs")),
+            ("subtypes_example", include_str!("templates/partials/subtypes_example.hbs")),
+            ("subtypes", include_str!("templates/partials/subtypes.hbs")),
+            ("test_operation_client", include_str!("templates/partials/test_operation_client.hbs")),
+        ];
+
+        for (template_name, template_string) in partials {
+            self.handlebars
+                .register_template_string(template_name, template_string)
+                .context(format!("Cannot register partial `{}`", template_name))?;
+            log::info!(
+                "new partial registered: {} ",
+                template_name);
         }
         Ok(())
     }
 
-    pub fn render<T: AsRef<Path>>(&mut self, output_path: T) -> Result<()> {
-        self.render_from_path(output_path.as_ref(), &PathBuf::new())
-    }
-
-    fn render_from_path(&mut self, output_path: &Path, path: &Path) -> Result<()> {
-        let template_path = self.template_path.join(path);
-        for entry in std::fs::read_dir(&template_path).context(format!(
-            "Cannot walk into template directory `{}`",
-            template_path.display()
-        ))? {
-            if let Ok(entry) = entry {
-                if entry.file_type()?.is_file() {
-                    let template_key = &format!("{}", path.join(entry.file_name()).display());
-                    self.handlebars
-                        .register_template_file(template_key, entry.path())
-                        .context(format!(
-                            "Cannot register template `{}` ",
-                            entry.path().display()
-                        ))?;
-                    log::info!(
-                        "new template registered: {} ({})",
-                        template_key,
-                        entry.path().display()
-                    );
-                    let output_file_path = output_path.join(path).join(entry.file_name());
-                    let mut output_file = File::create(&output_file_path)?;
-                    self.handlebars
-                        .render_to_write(template_key, &self.specs, &mut output_file)
-                        .context(format!(
-                            "Failed to render template `{}` at `{}`",
-                            template_key,
-                            output_file_path.display()
-                        ))?;
-                    log::info!("render {} to {}", template_key, output_file_path.display());
-                } else if entry.file_type()?.is_dir() {
-                    let mut path = path.to_path_buf();
-                    path.push(entry.file_name());
-                    let new_output_path = output_path.join(&path);
-                    std::fs::create_dir_all(&new_output_path).context(format!(
-                        "Cannot create directory `{}`",
-                        new_output_path.display()
-                    ))?;
-                    log::info!("create {}", new_output_path.display());
-                    self.render_from_path(output_path, &path).context(format!(
-                        "Failed to render templates under `{}`",
-                        new_output_path.display()
-                    ))?;
-                }
-            }
-        }
+    pub fn render(&mut self, output_path: &PathBuf) -> Result<()> {
+        let template_string = include_str!("templates/oapi.rs");
+        self.handlebars
+            .register_template_string("templates/oapi.rs", template_string)
+            .context("Cannot register template templates/oapi.rs")?;
+        log::info!("new template registered: templates/oapi.rs");
+        let output_file_path = output_path.join("oapi.rs"); //TODO
+        let mut output_file = File::create(&output_file_path)?;
+        self.handlebars
+            .render_to_write("templates/oapi.rs", &self.specs, &mut output_file)
+            .context(format!(
+                "Failed to render template templates/oapi.rs at `{}`",
+                output_file_path.display()
+            ))?;
+        log::info!("render templates/oapi.rs to {}", output_file_path.display());
         Ok(())
     }
 }

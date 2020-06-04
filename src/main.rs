@@ -12,8 +12,6 @@ use structopt::StructOpt;
     about = "Generate code from OpenAPI specifications"
 )]
 struct Cli {
-    /// Path of the template to generate
-    template: PathBuf,
     /// Path of the OpenAPI specification file to use for generation
     openapi: PathBuf,
     #[structopt(short = "d", long = "dest", default_value = "output")]
@@ -25,13 +23,12 @@ fn main() -> Result<()> {
     pretty_env_logger::init();
     let args = Cli::from_args();
     let mut openapi_generator =
-        OpenApiGenerator::new(&args.openapi, &args.template).context(format!(
-            "Cannot create OpenAPI generator with specifications at `{}` and template at `{}`",
-            args.openapi.to_string_lossy(),
-            args.template.to_string_lossy()
+        OpenApiGenerator::new(&args.openapi).context(format!(
+            "Cannot create OpenAPI generator with specifications at `{}`",
+            args.openapi.to_string_lossy()
         ))?;
     openapi_generator
-        .render(args.destination.clone())
+        .render(&args.destination.clone())
         .context(format!(
             "Cannot render to `{}`",
             args.destination.to_string_lossy()
