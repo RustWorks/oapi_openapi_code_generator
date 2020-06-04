@@ -1,22 +1,22 @@
 [package]
-name = "openapi_generator"
-version = "0.1.1-alpha.0"
-authors = ["Gérald Lelong <gerald.lelong@easymov.fr>"]
+name = "oapi_generator"
+version = "0.1.0"
+authors = ["Ivan Bratoev <ivan.g.bratoev@gmail.com>"]
 edition = "2018"
 license = "ISC"
-repository = "https://gitlab.com/easymov/openapi_generator"
+repository = "https://gitlab.com/amentis/oapi_generator"
 description = "Code generator for OpenAPI specifications"
 keywords = ["openapi", "swagger", "generator"]
 categories = ["template-engine", "web-programming"]
 
 [dependencies]
-anyhow = "1.0.26"
-handlebars = "2.0.2"
+anyhow = "1.0.31"
+handlebars = "3.1.0"
 heck = "0.3.1"
 pretty_env_logger = "0.4.0"
-serde_json = "1.0.48"
+serde_json = "1.0.53"
 json-pointer = "0.3.2"
-serde_yaml = "0.8.11"
+serde_yaml = "0.8.12"
 walkdir = "2.3.1"
 log = "0.4.8"
-structopt = "0.3.9"
+structopt = "0.3.14"

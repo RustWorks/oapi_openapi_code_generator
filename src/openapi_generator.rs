@@ -1,21 +1,21 @@
 use crate::helpers::{
     camelcase, component_path, has, json, mixedcase, sanitize, shoutysnakecase, snakecase,is_http_code_success
 };
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result};
 use handlebars::Handlebars;
 use log;
 use std::{
     fs::File,
-    path::{Path, PathBuf},
+    path::Path
 };
 
-pub struct OpenApiGenerator {
-    handlebars: Handlebars,
+pub struct OpenApiGenerator<'a> {
+    handlebars: Handlebars<'a>,
     specs: serde_yaml::Value
 }
 
-impl OpenApiGenerator {
-    pub fn new(specs_path: &PathBuf) -> Result<Self> {
+impl<'a> OpenApiGenerator<'a> {
+    pub fn new(specs_path: impl AsRef<Path>) -> Result<Self> {
         let mut openapi_generator = Self {
             handlebars: Handlebars::new(),
             specs: Self::parse_specification(&specs_path.as_ref())?
@@ -90,21 +90,20 @@ impl OpenApiGenerator {
         Ok(())
     }
 
-    pub fn render(&mut self, output_path: &PathBuf) -> Result<()> {
+    pub fn render(&mut self, output_path: impl AsRef<Path>) -> Result<()> {
         let template_string = include_str!("templates/oapi.rs");
         self.handlebars
             .register_template_string("templates/oapi.rs", template_string)
             .context("Cannot register template templates/oapi.rs")?;
         log::info!("new template registered: templates/oapi.rs");
-        let output_file_path = output_path.join("oapi.rs"); //TODO
-        let mut output_file = File::create(&output_file_path)?;
+        let mut output_file = File::create(&output_path)?;
         self.handlebars
             .render_to_write("templates/oapi.rs", &self.specs, &mut output_file)
             .context(format!(
                 "Failed to render template templates/oapi.rs at `{}`",
-                output_file_path.display()
+                output_path.as_ref().display()
             ))?;
-        log::info!("render templates/oapi.rs to {}", output_file_path.display());
+        log::info!("render templates/oapi.rs to {}", output_path.as_ref().display());
         Ok(())
     }
 }
