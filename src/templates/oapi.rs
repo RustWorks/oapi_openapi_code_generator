@@ -56,7 +56,7 @@ pub struct {{camelcase info.title "Client"}} {
             {{~#with requestBody.content.[application/json]}}body: &{{snakecase ../operationId}}::Body,{{~/with}}
             {{~#with requestBody.content.[multipart/form-data]}}form: reqwest::multipart::Form,{{~/with}}
         {{/if~}}
-    ) -> Result<super::{{snakecase operationId}}::Success, super::{{snakecase operationId}}::Error> {
+    ) -> Result<super::{{snakecase operationId}}::Success, self::{{snakecase operationId}}::Error> {
         use {{snakecase ../operationId}}::*;
         let url = self.url.join(
             {{#if (has parameters "in" "path")~}}
