@@ -3,7 +3,6 @@
 #[allow(clippy::unit_arg, clippy::redundant_clone)]
 use url::{Url};
 use std::sync::Arc;
-use std::time::Duration;
 
 pub const VERSION: &str = "{{info.version}}";
 
@@ -11,6 +10,7 @@ pub const VERSION: &str = "{{info.version}}";
 
 pub mod client {
     use url::Url;
+    use std::time::Duration;
 /* Reqwest's errors are bad-mannered and recurse on their source when displayed.
  * This behavior doesn't interact well with thiserror which also recurse on error's cause
  * when displayed. To prevent this issue, this wrapper hides the error's source from thiserror.
@@ -249,7 +249,7 @@ pub trait {{camelcase info.title}} {
 async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
     server: Data<Server>,{{!-- {{~#if parameters}} --}}
     {{~#if (has parameters "in" "query")~}}
-    query: Query<{{snakecase operationId}}::Query>,
+    query: Query<super::{{snakecase operationId}}::Query>,
     {{~/if}}
     {{~#if (has parameters "in" "path")~}}
     path: Path<{{snakecase operationId}}::Path>,
@@ -257,7 +257,7 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
 
     {{~#if (and requestBody (not noBody))}}
         {{~#with requestBody.content.[application/json]}}
-            body: Json<{{snakecase ../operationId}}::Body>,
+            body: Json<super::{{snakecase ../operationId}}::Body>,
         {{~/with}}
         {{~#with requestBody.content.[multipart/form-data]}}
             mut payload: Multipart,
