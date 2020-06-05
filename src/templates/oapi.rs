@@ -9,6 +9,7 @@ pub const VERSION: &str = "{{info.version}}";
 
 /*******************************client code*******************************/
 
+pub mod client {
 /* Reqwest's errors are bad-mannered and recurse on their source when displayed.
  * This behavior doesn't interact well with thiserror which also recurse on error's cause
  * when displayed. To prevent this issue, this wrapper hides the error's source from thiserror.
@@ -174,7 +175,7 @@ pub mod {{snakecase operationId}} {
 {{~#with patch}}{{~> shortcut_to_data_model}}{{~/with}}
 {{~/each}}
 
-
+}
 
 /*******************************models code*******************************/
 
@@ -206,7 +207,8 @@ pub mod components {
 {{~/each}}
 
 
-/*******************************models code*******************************/
+/*******************************server code*******************************/
+pub mod server {
 
 use actix_multipart::Multipart;
 use actix_web::{web::*, Responder, HttpResponse, dev::HttpResponseBuilder, http::StatusCode};
@@ -400,6 +402,8 @@ pub fn config<Server: {{camelcase info.title}} + Send + Sync + Clone + 'static>(
                 {{~/with}}
         )
     {{~/each}};
+}
+
 }
 
 pub trait OpenapiSerialization {
