@@ -56,7 +56,7 @@ pub struct {{camelcase info.title "Client"}} {
             {{~#with requestBody.content.[application/json]}}body: &{{snakecase ../operationId}}::Body,{{~/with}}
             {{~#with requestBody.content.[multipart/form-data]}}form: reqwest::multipart::Form,{{~/with}}
         {{/if~}}
-    ) -> Result<{{snakecase operationId}}::Success, {{snakecase operationId}}::Error> {
+    ) -> Result<super::{{snakecase operationId}}::Success, super::{{snakecase operationId}}::Error> {
         use {{snakecase ../operationId}}::*;
         let url = self.url.join(
             {{#if (has parameters "in" "path")~}}
@@ -139,7 +139,7 @@ impl {{camelcase info.title "Client"}} {
 {{~#*inline "shortcut_to_data_model"}}
 
 pub mod {{snakecase operationId}} {
-    //pub use crate::models::{{snakecase operationId}}::*;
+    pub use super::super::{{snakecase operationId}}::*;
 
     #[derive(Debug, thiserror::Error, displaydoc::Display)]
     pub enum Error {
