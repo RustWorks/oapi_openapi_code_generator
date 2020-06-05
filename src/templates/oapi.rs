@@ -1,8 +1,6 @@
 #[allow(clippy::ptr_arg)]
 #[allow(clippy::clone_on_copy)]
 #[allow(clippy::unit_arg, clippy::redundant_clone)]
-use url::{Url};
-use std::sync::Arc;
 
 pub const VERSION: &str = "{{info.version}}";
 
@@ -210,13 +208,8 @@ pub mod components {
 /*******************************server code*******************************/
 pub mod server {
 
-use actix_multipart::Multipart;
 use actix_web::{web::*, Responder, HttpResponse, dev::HttpResponseBuilder, http::StatusCode};
 use async_trait::async_trait;
-use std::error::Error;
-use futures::{StreamExt, TryStreamExt};
-use std::collections::HashMap;
-use std::convert::TryFrom;
 
 {{~#*inline "operation_fn_trait"}}
 
