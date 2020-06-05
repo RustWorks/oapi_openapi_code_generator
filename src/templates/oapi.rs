@@ -4,7 +4,6 @@
 use url::{Url};
 use std::sync::Arc;
 use std::time::Duration;
-use serde::{serde, Serialize, Deserialize};
 
 pub const VERSION: &str = "{{info.version}}";
 
@@ -183,7 +182,8 @@ pub mod components {
 {{~#with components}}
     pub mod schemas {
         use super::super::components;
-        use serde::{Deserialize, Serialize};
+        use serde_derive::{Deserialize, Serialize};
+        use serde::serde;
         use serde_json;
         use std::collections::HashMap;
         use std::convert::TryFrom;
