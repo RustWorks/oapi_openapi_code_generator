@@ -10,6 +10,7 @@ pub const VERSION: &str = "{{info.version}}";
 /*******************************client code*******************************/
 
 pub mod client {
+    use url::Url;
 /* Reqwest's errors are bad-mannered and recurse on their source when displayed.
  * This behavior doesn't interact well with thiserror which also recurse on error's cause
  * when displayed. To prevent this issue, this wrapper hides the error's source from thiserror.
@@ -183,8 +184,7 @@ pub mod components {
 {{~#with components}}
     pub mod schemas {
         use super::super::components;
-        use serde_derive::{Deserialize, Serialize};
-        use serde::serde;
+        use serde_derive::{Deserialize, Serialize, serde};
         use serde_json;
         use std::collections::HashMap;
         use std::convert::TryFrom;
@@ -222,9 +222,9 @@ use std::convert::TryFrom;
 
     async fn {{snakecase operationId}}(
         &self,
-        _parameters: {{snakecase operationId}}::Parameters,
-        {{#unless noBody~}} _body: {{snakecase operationId}}::Body, {{~/unless}}
-    ) -> Result<{{snakecase operationId}}::Success, {{snakecase operationId}}::Error<Self::Error>> {
+        _parameters: super::{{snakecase operationId}}::Parameters,
+        {{#unless noBody~}} _body: super::{{snakecase operationId}}::Body, {{~/unless}}
+    ) -> Result<super::{{snakecase operationId}}::Success, super::{{snakecase operationId}}::Error<Self::Error>> {
         unimplemented!()
     }
 {{~/inline}}
@@ -264,7 +264,7 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
         {{~/with}}
     {{~/if}}
 ) -> impl Responder {
-    use {{snakecase operationId}}::*;
+    use super::{{snakecase operationId}}::*;
     let parameters = Parameters::new(
         {{~#if (has parameters "in" "query")~}}query.into_inner(),{{~/if}}
         {{~#if (has parameters "in" "path")~}}path.into_inner(),{{~/if}}
