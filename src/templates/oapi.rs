@@ -4,6 +4,7 @@
 use url::{Url};
 use std::sync::Arc;
 use std::time::Duration;
+use serde::{serde, Serialize, Deserialize};
 
 pub const VERSION: &str = "{{info.version}}";
 
