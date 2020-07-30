@@ -310,7 +310,7 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
     {{~#if security }}
         {{~#each security as |obj|}}
             {{~#each obj as |o  key|}}
-    match server.{{snakecase key}}(request) { Ok(_) => (), Err(e) => return HttpResponse::InternalServerError().body(err_to_string(&err))};
+    match server.{{snakecase key}}(request).await { Ok(_) => (), Err(e) => return HttpResponse::InternalServerError().body(err_to_string(&err))};
             {{~/each}}
         {{~/each}}
     {{~/if}}
