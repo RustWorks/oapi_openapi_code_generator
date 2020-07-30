@@ -220,6 +220,15 @@ use async_trait::async_trait;
     }
 {{~/inline}}
 
+{{~#*inline "auth_fn_trait"}}
+    async fn {{snakecase key}}(
+        &self,
+        _request: actix_web::dev::ServiceRequest,
+    ) -> Result<(), actix_web::error::Error> {
+        unimplemented!();
+    }
+{{~/inline}}
+
 #[async_trait(?Send)]
 pub trait {{camelcase info.title}} {
     type Error: std::error::Error;
@@ -232,6 +241,10 @@ pub trait {{camelcase info.title}} {
     {{~#with options}}{{~> operation_fn_trait}}{{~/with}}
     {{~#with trace}}{{~> operation_fn_trait}}{{~/with}}
     {{~#with patch}}{{~> operation_fn_trait}}{{~/with}}
+{{~/each}}
+
+{{#each components.securitySchemes as | obj  key |}}
+    {{~#with key}}{{~> auth_fn_trait}}{{~/with}}
 {{~/each}}
 }
 {{#*inline "operation_fn"}}
