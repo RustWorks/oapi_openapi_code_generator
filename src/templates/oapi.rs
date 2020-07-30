@@ -223,8 +223,8 @@ use async_trait::async_trait;
 {{~#*inline "auth_fn_trait"}}
     async fn {{snakecase key}}(
         &self,
-        _request: actix_web::dev::ServiceRequest,
-    ) -> Result<(), actix_web::error::Error> {
+        _request: actix_web::HttpRequest,
+    ) -> Result<(), Self::Error> {
         unimplemented!();
     }
 {{~/inline}}
@@ -251,6 +251,7 @@ pub trait {{camelcase info.title}} {
 {{#if summary}}/// {{summary}}{{/if}}
 {{~#if description}}/// {{description}}{{/if}}
 async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
+    request: actix_web::HttpRequest,
     server: Data<Server>,{{!-- {{~#if parameters}} --}}
     {{~#if (has parameters "in" "query")~}}
     query: Query<super::{{snakecase operationId}}::Query>,
@@ -305,6 +306,14 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
             let body = {{snakecase operationId}}::Body {};
         {{~/if}}
     {{~/unless}}
+
+    {{~#if security }}
+        {{~#each security as |obj|}}
+            {{~#each obj as |o  key|}}
+    match server.{{snakecase key}}(request) { Ok(_) => (), Err(e) => return HttpResponse::InternalServerError().body(err_to_string(&err))};
+            {{~/each}}
+        {{~/each}}
+    {{~/if}}
 
     match server.{{snakecase operationId}}(parameters {{~#unless noBody}}, body{{/unless}}).await {
         {{~#each responses}}
