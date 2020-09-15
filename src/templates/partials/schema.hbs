@@ -65,10 +65,20 @@ pub type {{camelcase name suffix}} = {{>data_type required="true"}};
             }
 
         {{~else~}}
-            pub type {{camelcase name suffix}} =
-                {{~#if type}} {{>data_type required="true"}}
-                {{~else}} ()
-                {{~/if}};
+            {{~#if [oneOf]~}}
+                #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+                #[serde(untagged)]
+                pub enum {{camelcase name suffix}} {
+                {{~#each oneOf}}
+                    Option{{@index}}({{>data_type required="true"}}),
+                {{~/each}}
+                }
+            {{~else~}}
+                pub type {{camelcase name suffix}} =
+                    {{~#if type}} {{>data_type required="true"}}
+                    {{~else}} ()
+                    {{~/if}};
+            {{/if}}
         {{/if}}
     {{~/if}}
 {{~/if}}
