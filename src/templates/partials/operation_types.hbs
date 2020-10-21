@@ -1,4 +1,5 @@
 {{~#if operationId}}
+#[allow(unused_assignments, unused_imports, unused_variables)]
 pub mod {{snakecase operationId}} {
     use super::components;
     use serde::{Deserialize, Serialize};

@@ -1,12 +1,12 @@
-#![allow(clippy::ptr_arg)]
-#![allow(clippy::clone_on_copy)]
-#![allow(clippy::unit_arg, clippy::redundant_clone)]
-#![allow(unused_assignments, unused_imports, unused_variables)]
+#[allow(clippy::ptr_arg)]
+#[allow(clippy::clone_on_copy)]
+#[allow(clippy::unit_arg, clippy::redundant_clone)]
 
 pub const VERSION: &str = "{{info.version}}";
 
 /*******************************client code*******************************/
 
+#[allow(unused_assignments, unused_imports, unused_variables)]
 pub mod client {
     use url::Url;
     use std::time::Duration;
@@ -137,6 +137,7 @@ impl {{camelcase info.title "Client"}} {
 
 {{~#*inline "shortcut_to_data_model"}}
 
+#[allow(unused_assignments, unused_imports, unused_variables)]
 pub mod {{snakecase operationId}} {
     pub use super::super::{{snakecase operationId}}::*;
 
@@ -179,8 +180,10 @@ pub mod {{snakecase operationId}} {
 
 /*******************************models code*******************************/
 
+#[allow(unused_assignments, unused_imports, unused_variables)]
 pub mod components {
 {{~#with components}}
+    #[allow(unused_assignments, unused_imports, unused_variables)]
     pub mod schemas {
         use super::super::components;
         use serde::{Deserialize, Serialize};
@@ -205,6 +208,7 @@ pub mod components {
 
 
 /*******************************server code*******************************/
+#[allow(unused_assignments, unused_imports, unused_variables)]
 pub mod server {
 
 use actix_web::{web::*, Responder, HttpResponse, dev::HttpResponseBuilder, http::StatusCode};
