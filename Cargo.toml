@@ -1,6 +1,6 @@
 [package]
 name = "oapi_generator"
-version = "0.0.9"
+version = "0.0.10"
 authors = ["Ivan Bratoev <ivan.g.bratoev@gmail.com>"]
 edition = "2018"
 license = "ISC"
