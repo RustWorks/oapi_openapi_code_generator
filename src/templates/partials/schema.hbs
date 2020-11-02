@@ -7,7 +7,7 @@ pub type {{camelcase name suffix}} = {{>data_type required="true"}};
 {{~else}}
     {{~#if (eq type "object")~}}
         {{~#if properties~}}
-            #[derive(Clone, Debug, Deserialize, Serialize, Eq, PartialEq, Hash)]
+            #[derive(Clone, Debug, Deserialize, Serialize, Eq, PartialEq)]
             pub struct {{camelcase name suffix}} {
             {{~#each properties}}
                 #[serde(rename = "{{@key}}")]
@@ -44,7 +44,7 @@ pub type {{camelcase name suffix}} = {{>data_type required="true"}};
         {{~/if}}
     {{~else~}}
         {{~#if (and (eq type "string") enum (not format))}}
-            #[derive(Clone, Copy, Debug, Deserialize, Serialize, PartialEq, Eq, Hash)]
+            #[derive(Clone, Copy, Debug, Deserialize, Serialize, PartialEq, Eq)]
             pub enum {{camelcase ../name @key suffix}} {
                 {{~#each enum}}
                 #[serde(rename = "{{this}}")]
@@ -66,7 +66,7 @@ pub type {{camelcase name suffix}} = {{>data_type required="true"}};
 
         {{~else~}}
             {{~#if [oneOf]~}}
-                #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq, Hash)]
+                #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
                 #[serde(untagged)]
                 pub enum {{camelcase name suffix}} {
                 {{~#each oneOf}}
