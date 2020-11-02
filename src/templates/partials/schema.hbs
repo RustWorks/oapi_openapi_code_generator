@@ -44,7 +44,7 @@ pub type {{camelcase name suffix}} = {{>data_type required="true"}};
         {{~/if}}
     {{~else~}}
         {{~#if (and (eq type "string") enum (not format))}}
-            #[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq, Serialize)]
+            #[derive(Clone, Copy, Debug, Deserialize, Serialize, PartialEq, Eq, Hash)]
             pub enum {{camelcase ../name @key suffix}} {
                 {{~#each enum}}
                 #[serde(rename = "{{this}}")]
@@ -66,7 +66,7 @@ pub type {{camelcase name suffix}} = {{>data_type required="true"}};
 
         {{~else~}}
             {{~#if [oneOf]~}}
-                #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+                #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq, Hash)]
                 #[serde(untagged)]
                 pub enum {{camelcase name suffix}} {
                 {{~#each oneOf}}
