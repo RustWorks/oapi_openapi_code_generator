@@ -7,7 +7,7 @@ pub type {{camelcase name suffix}} = {{>data_type required="true"}};
 {{~else}}
     {{~#if (eq type "object")~}}
         {{~#if properties~}}
-            #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+            #[derive(Clone, Debug, Deserialize, Serialize, Eq, PartialEq, Hash)]
             pub struct {{camelcase name suffix}} {
             {{~#each properties}}
                 #[serde(rename = "{{@key}}")]
