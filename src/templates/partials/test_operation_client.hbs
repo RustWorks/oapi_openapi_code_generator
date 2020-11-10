@@ -20,6 +20,9 @@ fn test_{{snakecase operationId}}_{{status}}() {
     {{~#with response.content.[application/json]}}
     .with_body(serde_json::to_string(&{{>example}}.unwrap()).unwrap())
     {{~/with}}
+    {{~#with response.content.[application/x-www-form-urlencoded]}}
+    .with_body(&{{>example}}.unwrap())
+    {{~/with}}
     .create();
   {{~#if parameters}}
   let parameters = {{snakecase operationId}}::Parameters {
@@ -35,11 +38,17 @@ fn test_{{snakecase operationId}}_{{status}}() {
     {{~#with requestBody.content.[application/json]}}
     &{{>example required="true"}}.unwrap()
     {{~/with}});
+    {{~#with requestBody.content.[application/x-www-form-urlencoded]}}
+    &{{>example required="true"}}.unwrap()
+    {{~/with}});
   mock.assert();
   let data = result.unwrap();
   use {{snakecase operationId}}::Response::*;
   if let {{camelcase "Response" status}}(object) = data {
     {{~#with response.content.[application/json]}}
+    assert_eq!(object, {{>example required="false"}}.unwrap());
+    {{~/with}}
+    {{~#with response.content.[application/x-www-form-urlencoded]}}
     assert_eq!(object, {{>example required="false"}}.unwrap());
     {{~/with}}
   } else {

@@ -69,6 +69,7 @@ pub mod {{snakecase operationId}} {
 
     {{#unless noBody}}
         {{~#if requestBody}}
+            {{~#with requestBody.content.[application/x-www-form-urlencoded]}}{{~>schema name="Body" description=../description schema}}{{~/with}}
             {{~#with requestBody.content.[application/json]}}{{~>schema name="Body" description=../description schema}}{{~/with}}
             {{~#with requestBody.content.[multipart/form-data]}}{{~>schema name="Body" description=../description schema}}{{~/with}}
         {{~else~}}

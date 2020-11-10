@@ -2,3 +2,7 @@
 **/*.rs.bk
 output
 Cargo.lock
+
+# IDEs
+.idea
+.vscode

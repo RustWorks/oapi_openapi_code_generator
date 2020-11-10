@@ -6,6 +6,7 @@ pub mod {{snakecase operationId}} {
 
     {{#with requestBody}}
     {{>schema_example name="Body" description=description content.[application/json].schema}}
+    {{>schema_example name="Body" description=description content.[application/x-www-form-urlencoded].schema}}
     {{~/with}}
 
     {{~#each responses}}

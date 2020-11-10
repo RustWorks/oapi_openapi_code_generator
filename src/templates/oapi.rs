@@ -52,6 +52,7 @@ pub struct {{camelcase info.title "Client"}} {
         &self,
         {{~#if ../parameters~}} parameters: &{{snakecase operationId}}::Parameters,{{/if}}
         {{~#if requestBody~}}
+            {{~#with requestBody.content.[application/x-www-form-urlencoded]}}body: &{{snakecase ../operationId}}::Body,{{~/with}}
             {{~#with requestBody.content.[application/json]}}body: &{{snakecase ../operationId}}::Body,{{~/with}}
             {{~#with requestBody.content.[multipart/form-data]}}form: reqwest::multipart::Form,{{~/with}}
         {{/if~}}
@@ -74,6 +75,7 @@ pub struct {{camelcase info.title "Client"}} {
             .query(&parameters.query())
             {{~/if}}
             {{~#if requestBody}}
+                {{~#with requestBody.content.[application/x-www-form-urlencoded]}}.form(&body){{~/with}}
                 {{~#with requestBody.content.[application/json]}}.json(&body){{~/with}}
                 {{~#with requestBody.content.[multipart/form-data]}}.multipart(form){{~/with}}
             {{~/if}}
@@ -266,6 +268,9 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
     {{~/if}}
 
     {{~#if (and requestBody (not noBody))}}
+        {{~#with requestBody.content.[application/x-www-form-urlencoded]}}
+            body: Form<super::{{snakecase ../operationId}}::Body>,
+        {{~/with}}
         {{~#with requestBody.content.[application/json]}}
             body: Json<super::{{snakecase ../operationId}}::Body>,
         {{~/with}}
@@ -283,6 +288,10 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
         {{~#if requestBody}}
 
             {{~#with requestBody.content.[application/json]}}
+                let body = body.into_inner();
+            {{~/with}}
+
+            {{~#with requestBody.content.[application/x-www-form-urlencoded]}}
                 let body = body.into_inner();
             {{~/with}}
 
