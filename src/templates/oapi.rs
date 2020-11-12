@@ -217,14 +217,11 @@ use actix_web::{web::*, Responder, HttpResponse, dev::HttpResponseBuilder, http:
 use async_trait::async_trait;
 
 {{~#*inline "operation_fn_trait"}}
-
     async fn {{snakecase operationId}}(
         &self,
-        _parameters: super::{{snakecase operationId}}::Parameters,
-        {{#unless noBody~}} _body: super::{{snakecase operationId}}::Body, {{~/unless}}
-    ) -> Result<super::{{snakecase operationId}}::Success, super::{{snakecase operationId}}::Error<Self::Error>> {
-        unimplemented!()
-    }
+        parameters: super::{{snakecase operationId}}::Parameters,
+        {{#unless noBody~}} body: super::{{snakecase operationId}}::Body, {{~/unless}}
+    ) -> Result<super::{{snakecase operationId}}::Success, super::{{snakecase operationId}}::Error<Self::Error>>;
 {{~/inline}}
 
 {{~#*inline "auth_fn_trait"}}
