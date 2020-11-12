@@ -228,9 +228,7 @@ use async_trait::async_trait;
     async fn {{snakecase key}}(
         &self,
         _request: actix_web::HttpRequest,
-    ) -> Result<(), Self::Error> {
-        unimplemented!();
-    }
+    ) -> Result<(), Self::Error>;
 {{~/inline}}
 
 #[async_trait(?Send)]
