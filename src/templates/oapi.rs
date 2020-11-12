@@ -219,6 +219,7 @@ use async_trait::async_trait;
 {{~#*inline "operation_fn_trait"}}
     async fn {{snakecase operationId}}(
         &self,
+        request: &actix_web::HttpRequest,
         parameters: super::{{snakecase operationId}}::Parameters,
         {{#unless noBody~}} body: super::{{snakecase operationId}}::Body, {{~/unless}}
     ) -> Result<super::{{snakecase operationId}}::Success, super::{{snakecase operationId}}::Error<Self::Error>>;
@@ -227,7 +228,7 @@ use async_trait::async_trait;
 {{~#*inline "auth_fn_trait"}}
     async fn {{snakecase key}}(
         &self,
-        _request: actix_web::HttpRequest,
+        request: &actix_web::HttpRequest,
     ) -> Result<(), Self::Error>;
 {{~/inline}}
 
@@ -275,10 +276,12 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
     {{~/if}}
 ) -> impl Responder {
     use super::{{snakecase operationId}}::*;
+
     let parameters = Parameters::new(
         {{~#if (has parameters "in" "query")~}}query.into_inner(),{{~/if}}
         {{~#if (has parameters "in" "path")~}}path.into_inner(),{{~/if}}
     );
+
     {{~#unless noBody}}
         {{~#if requestBody}}
 
@@ -319,14 +322,14 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
     {{~#if security }}
         {{~#each security as |obj|}}
             {{~#each obj as |o  key|}}
-    if let Err(err) = server.{{snakecase key}}(request).await {
+    if let Err(err) = server.{{snakecase key}}(&request).await {
         return HttpResponse::Unauthorized().body(err_to_string(&err));
     }
             {{~/each}}
         {{~/each}}
     {{~/if}}
 
-    match server.{{snakecase operationId}}(parameters {{~#unless noBody}}, body{{/unless}}).await {
+    match server.{{snakecase operationId}}(&request, parameters {{~#unless noBody}}, body{{/unless}}).await {
         {{~#each responses}}
             {{~#if (not (eq @key "default"))}}
                 {{~#if (is_http_code_success @key)}}
