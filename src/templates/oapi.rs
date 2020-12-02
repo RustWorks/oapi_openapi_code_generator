@@ -428,7 +428,14 @@ pub fn config<Server: {{camelcase info.title}} + Send + Sync + Clone + 'static>(
                 .route(patch().to({{snakecase operationId}}::<Server>))
                 {{~/with}}
         )
-    {{~/each}};
+    {{~/each}}
+        .app_data(actix_web::web::JsonConfig::default()
+            .error_handler(|err, _| {
+                actix_web::HttpResponse::BadRequest()
+                    .body(err_to_string(&err))
+                    .into()
+            })
+        );
 }
 
 }
