@@ -13,18 +13,39 @@ pub mod {{snakecase operationId}} {
     lazy_static::lazy_static! {
     {{~#each parameters}}
     {{~#if schema.pattern}}
-        pub static ref {{shoutysnakecase ../operationId}}_{{shoutysnakecase name}}_PATTERN: Regex
-            = Regex::new("{{schema.pattern}}").expect("Regex for `{{../operationId}}`'s `{{name}}`");
+        static ref {{shoutysnakecase ../operationId}}_{{shoutysnakecase name}}_PATTERN: Regex
+            = Regex::new("{{schema.pattern}}").expect("Regex for `{{../operationId}}`'s parameter `{{name}}`");
     {{~/if}}
     {{~/each}}
     }
     {{~/if}}
 
-    /// Parameters for {{snakecase operationId}} operation
+    {{~#if parameters}}
+    {{~#each parameters}}
+    {{~#if schema.pattern}}
+    fn deserialize_{{snakecase ../operationId}}_{{snakecase name}}<'de, D, T>(d: D) -> Result<T, D::Error>
+    where
+        T: Deserialize + AsRef<str>,
+        D: serde::de::Deserializer<'de>,
+    {
+        let res = T::deserialize(d)?;
+
+        if !{{shoutysnakecase ../operationId}}_{{shoutysnakecase name}}_PATTERN.is_match(res.as_ref()) {
+            return serde::de::Error::custom("Parameter `{{snakecase name}}` does not match its required pattern");
+        }
+
+        Ok(res)
+    }
+    {{~/if}}
+    {{~/each}}
+    {{~/if}}
+
+    /// Parameters for the `{{snakecase operationId}}` operation
     {{~#if parameters}}
     #[derive(Deserialize, Debug)]
     pub struct Parameters {
     {{~#each parameters}}
+        {{#if schema.pattern}}#[serde(deserialize_with = "deserialize_{{snakecase ../operationId}}_{{snakecase name}}")]{{/if}}
         {{#if description}}/// {{description}}{{/if}}
         pub {{snakecase name}}: {{>data_type name=name required=required schema}},
     {{~/each}}

@@ -2,9 +2,9 @@
 #[allow(clippy::clone_on_copy)]
 #[allow(clippy::unit_arg, clippy::redundant_clone)]
 
-{{#if info.version}}
+{{~#if info.version}}
 pub const VERSION: &str = "{{info.version}}";
-{{/if}}
+{{~/if}}
 
 {{#if info.title}}
 /*******************************client code*******************************/
@@ -288,9 +288,7 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
         {{~#if (has parameters "in" "path")~}}path.into_inner(),{{~/if}}
     ) {
         Ok(x) => x,
-        Err(e) => {
-            todo!()
-        },
+        Err(err) => return HttpResponse::BadRequest().body(err_to_string(&err)),
     };
 
     {{~#unless noBody}}
