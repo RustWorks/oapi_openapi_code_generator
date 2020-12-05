@@ -40,14 +40,31 @@ pub mod {{snakecase operationId}} {
         pub fn new(
             {{~#if (has parameters "in" "query")~}}query: Query,{{~/if}}
             {{~#if (has parameters "in" "path")~}}path: Path,{{~/if}}
-        ) -> Self {
-            Self {
+        ) -> Result<Self, &'static str> {
+            Ok(Self {
             {{~#each parameters}}
                 {{snakecase name}}:
+                    {{~#if schema.pattern}}
+                    {{~#if (eq in "query")}} {
+                        if !{{shoutysnakecase ../operationId}}_{{shoutysnakecase name}}_PATTERN.is_match(&query.{{snakecase name}}) {
+                            return Err("Parameter `{{snakecase name}}` doesn't match its required pattern");
+                        }
+
+                        query.{{snakecase name}}
+                    }, {{~/if}}
+                    {{~#if (eq in "path")}} {
+                        if !{{shoutysnakecase ../operationId}}_{{shoutysnakecase name}}_PATTERN.is_match(&path.{{snakecase name}}) {
+                            return Err("Parameter `{{snakecase name}}` doesn't match its required pattern");
+                        }
+
+                        path.{{snakecase name}}
+                    }, {{~/if}}
+                    {{~else}}
                     {{~#if (eq in "query")}} query.{{snakecase name}}, {{~/if}}
                     {{~#if (eq in "path")}} path.{{snakecase name}}, {{~/if}}
+                    {{~/if}}
             {{~/each}}
-            }
+            })
         }
 
         {{#if (has parameters "in" "query")~}}

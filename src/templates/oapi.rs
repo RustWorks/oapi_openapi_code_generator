@@ -283,10 +283,15 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
 ) -> impl Responder {
     use super::{{snakecase operationId}}::*;
 
-    let parameters = Parameters::new(
+    let parameters = match Parameters::new(
         {{~#if (has parameters "in" "query")~}}query.into_inner(),{{~/if}}
         {{~#if (has parameters "in" "path")~}}path.into_inner(),{{~/if}}
-    );
+    ) {
+        Ok(x) => x,
+        Err(e) => {
+            todo!()
+        },
+    };
 
     {{~#unless noBody}}
         {{~#if requestBody}}
