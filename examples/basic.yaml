@@ -19,6 +19,9 @@ components:
         - real
         - imaginary
       properties:
+        realAsString:
+          type: string
+          pattern: '[0-9]{2}'
         real:
           type: integer
         imaginary:
