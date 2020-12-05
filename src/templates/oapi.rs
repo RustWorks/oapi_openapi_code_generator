@@ -2,8 +2,11 @@
 #[allow(clippy::clone_on_copy)]
 #[allow(clippy::unit_arg, clippy::redundant_clone)]
 
+{{#if info.version}}
 pub const VERSION: &str = "{{info.version}}";
+{{/if}}
 
+{{#if info.title}}
 /*******************************client code*******************************/
 
 #[allow(unused_assignments, unused_imports, unused_variables)]
@@ -179,7 +182,9 @@ pub mod {{snakecase operationId}} {
 {{~/each}}
 
 }
+{{/if}}
 
+{{#if components.schemas}}
 /*******************************models code*******************************/
 
 #[allow(unused_assignments, unused_imports, unused_variables)]
@@ -189,7 +194,6 @@ pub mod components {
     pub mod schemas {
         use super::super::components;
         use serde::{Deserialize, Serialize};
-        use serde_json;
 
         {{~#each schemas}}
             {{>schema name=@key this}}
@@ -207,8 +211,9 @@ pub mod components {
     {{~>operation_types trace}}
     {{~>operation_types patch}}
 {{~/each}}
+{{/if}}
 
-
+{{#if info.title}}
 /*******************************server code*******************************/
 #[allow(unused_assignments, unused_imports, unused_variables)]
 pub mod server {
@@ -250,6 +255,7 @@ pub trait {{camelcase info.title}} {
     {{~#with key}}{{~> auth_fn_trait}}{{~/with}}
 {{~/each}}
 }
+
 {{#*inline "operation_fn"}}
 {{#if summary}}/// {{summary}}{{/if}}
 {{~#if description}}/// {{description}}{{/if}}
@@ -439,6 +445,7 @@ pub fn config<Server: {{camelcase info.title}} + Send + Sync + Clone + 'static>(
 }
 
 }
+{{/if}}
 
 pub trait OpenapiSerialization {
   fn serialize(&self) -> Option<String>;
