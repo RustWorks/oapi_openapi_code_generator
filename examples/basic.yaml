@@ -25,6 +25,28 @@ components:
           type: integer
 
 paths:
+  /endpoint/{param}:
+    get:
+      summary: Returns a list of strings.
+      operationId: get_users # for now operationId is required
+      description: Optional extended description in CommonMark or HTML.
+      parameters:
+        - in: path
+          name: param
+          schema:
+            type: string
+            pattern: '[a-zA-Z0-9]+'
+          required: true
+          description: An alphanumeric string
+      responses:
+        '200':
+          description: A JSON array of strings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
   /sum-complex:
     post:
       summary: Sum two complex numbers
