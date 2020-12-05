@@ -4,6 +4,7 @@ pub struct {{camelcase type}} {
 {{~#each parameters}}
     {{~#if (eq in ../type)}}
     {{#if description}}/// {{description}}{{/if}}
+    {{#if schema.pattern}} /// {{schema.pattern}}{{/if}}
     pub {{snakecase name}}: {{>data_type name=name required=required schema}},
     {{~/if}}
 {{~/each}}
