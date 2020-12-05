@@ -3,10 +3,22 @@
 pub mod {{snakecase operationId}} {
     use super::components;
     use serde::{Deserialize, Serialize};
+    use regex::Regex;
 
     {{#each parameters}}
         {{~>schema name=name schema}}
     {{~/each}}
+
+    {{~#if parameters}}
+    lazy_static::lazy_static! {
+    {{~#each parameters}}
+    {{~#if schema.pattern}}
+        pub static ref {{shoutysnakecase ../operationId}}_{{shoutysnakecase name}}_PATTERN: Regex
+            = Regex::new("{{schema.pattern}}").expect("Regex for `{{../operationId}}`'s `{{name}}`");
+    {{~/if}}
+    {{~/each}}
+    }
+    {{~/if}}
 
     /// Parameters for {{snakecase operationId}} operation
     {{~#if parameters}}
