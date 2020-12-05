@@ -28,6 +28,7 @@ paths:
   /users:
     get:
       summary: Returns a list of users.
+      operationId: get_users # for now operationId is required
       description: Optional extended description in CommonMark or HTML.
       responses:
         '200':    # status code
