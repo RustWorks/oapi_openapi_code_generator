@@ -266,7 +266,7 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
     query: Query<super::{{snakecase operationId}}::Query>,
     {{~/if}}
     {{~#if (has parameters "in" "path")~}}
-    path: Path<{{snakecase operationId}}::Path>,
+    path: Path<super::{{snakecase operationId}}::Path>,
     {{~/if}}
 
     {{~#if (and requestBody (not noBody))}}
