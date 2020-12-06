@@ -408,7 +408,7 @@ fn err_to_string(err: &dyn std::error::Error) -> String {
     {{~#with patch}}{{~> operation_fn title=../../info.title}}{{~/with}}
 {{~/each}}
 
-pub fn config<Server: {{camelcase info.title}} + Send + Sync + Clone + 'static>(
+pub fn config<Server: {{camelcase info.title}} + 'static>(
     app: &mut ServiceConfig,
 ) {
     app
