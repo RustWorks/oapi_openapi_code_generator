@@ -62,14 +62,17 @@ pub struct {{camelcase info.title "Client"}} {
     ) -> Result<super::{{snakecase operationId}}::Success, self::{{snakecase operationId}}::Error> {
         use {{snakecase ../operationId}}::*;
         let url = self.url.join(
+            "/"
+            {{!-- TODO: fix this
             {{#if (has parameters "in" "path")~}}
-            format!("{{@../key}}"
+            format!("{{p}}"
             {{~#each parameters}}
                 {{~#if (eq in "path")}}, {{name}} = parameters.{{snakecase name}}{{/if}}
             {{~/each~}})
             {{~else~}}
             "{{@../key}}"
             {{~/if~}}
+            --}}
             .trim_start_matches('/')
         ).expect("url parse error");
         let response = self.client
@@ -288,7 +291,7 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
         {{~#if (has parameters "in" "path")~}}path.into_inner(),{{~/if}}
     ) {
         Ok(x) => x,
-        Err(err) => return HttpResponse::BadRequest().body(err_to_string(&err)),
+        Err(err) => todo!(),//return HttpResponse::BadRequest().body(err_to_string(&err)),
     };
 
     {{~#unless noBody}}
