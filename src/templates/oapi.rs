@@ -65,7 +65,7 @@ pub struct {{camelcase info.title "Client"}} {
             "/"
             {{!-- TODO: fix this
             {{#if (has parameters "in" "path")~}}
-            format!("{{p}}"
+            format!("{{@../key}}"
             {{~#each parameters}}
                 {{~#if (eq in "path")}}, {{name}} = parameters.{{snakecase name}}{{/if}}
             {{~/each~}})
