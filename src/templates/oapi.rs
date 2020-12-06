@@ -291,7 +291,7 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
         {{~#if (has parameters "in" "path")~}}path.into_inner(),{{~/if}}
     ) {
         Ok(x) => x,
-        Err(err) => todo!(),//return HttpResponse::BadRequest().body(err_to_string(&err)),
+        Err(err) => return HttpResponse::BadRequest().body(err_to_string(&err)),
     };
 
     {{~#unless noBody}}
