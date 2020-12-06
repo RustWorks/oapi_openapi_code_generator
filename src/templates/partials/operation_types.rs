@@ -48,12 +48,12 @@ pub mod {{snakecase operationId}} {
                     {{~#if (eq in "query")}} {
                         {{~#if required}}
                         if !{{shoutysnakecase ../operationId}}_{{shoutysnakecase name}}_PATTERN.is_match(&query.{{snakecase name}}) {
-                            return Err(serde::de::Error::custom("Parameter `{{snakecase name}}` does not match its required pattern"));
+                            return Err(serde::de::Error::custom("Parameter `{{name}}` does not match its required pattern"));
                         }
                         {{~else}}
                         if let Some(res) = query.{{snakecase name}}.as_ref() {
                             if !{{shoutysnakecase ../operationId}}_{{shoutysnakecase name}}_PATTERN.is_match(&res) {
-                                return Err(serde::de::Error::custom("Optional parameter `{{snakecase name}}` is present but does not match its required pattern"));
+                                return Err(serde::de::Error::custom("Optional parameter `{{name}}` is present but does not match its required pattern"));
                             }
                         }
                         {{~/if}}

@@ -29,14 +29,14 @@ pub type {{camelcase name suffix}} = {{>data_type required="true"}};
                 let res = String::deserialize(d)?;
 
                 if !{{shoutysnakecase @key suffix}}_PATTERN.is_match(&res) {
-                    return Err(serde::de::Error::custom("Parameter `{{snakecase @key}}` does not match its required pattern"));
+                    return Err(serde::de::Error::custom("Parameter `{{@key}}` does not match its required pattern"));
                 }
                 {{~else}}
                 let res = Option::<String>::deserialize(d)?;
 
                 if let Some(res) = res.as_ref() {
                     if !{{shoutysnakecase @key suffix}}_PATTERN.is_match(&res) {
-                        return Err(serde::de::Error::custom("Optional parameter `{{snakecase @key}}` is present but does not match its required pattern"));
+                        return Err(serde::de::Error::custom("Optional parameter `{{@key}}` is present but does not match its required pattern"));
                     }
                 }
                 {{~/if}}
