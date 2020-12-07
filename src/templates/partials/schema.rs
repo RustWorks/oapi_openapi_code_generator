@@ -13,7 +13,7 @@ pub type {{camelcase name suffix}} = {{>data_type required="true"}};
 
             lazy_static::lazy_static! {
                 static ref {{shoutysnakecase ../name @key ../suffix}}_PATTERN: regex::Regex
-                    = regex::Regex::new("{{pattern}}").expect("Regex for `{{name}}`'s `{{@key}}`");
+                    = regex::Regex::new("{{pattern}}").expect("Regex for `{{../name}}{{../suffix}}`'s parameter `{{@key}}`");
             }
 
             fn deserialize_{{snakecase ../name @key ../suffix}}<'de, D>(d: D)
@@ -29,14 +29,14 @@ pub type {{camelcase name suffix}} = {{>data_type required="true"}};
                 let res = String::deserialize(d)?;
 
                 if !{{shoutysnakecase ../name @key ../suffix}}_PATTERN.is_match(&res) {
-                    return Err(serde::de::Error::custom("Parameter `{{@key}}` does not match its required pattern"));
+                    return Err(serde::de::Error::custom("`{{../name}}{{../suffix}}`'s parameter `{{@key}}` does not match its required pattern"));
                 }
                 {{~else}}
                 let res = Option::<String>::deserialize(d)?;
 
                 if let Some(res) = res.as_ref() {
                     if !{{shoutysnakecase ../name @key ../suffix}}_PATTERN.is_match(&res) {
-                        return Err(serde::de::Error::custom("Optional parameter `{{@key}}` is present but does not match its required pattern"));
+                        return Err(serde::de::Error::custom("`{{../name}}{{../suffix}}`'s optional parameter `{{@key}}` is present but does not match its required pattern"));
                     }
                 }
                 {{~/if}}
