@@ -12,11 +12,11 @@ pub type {{camelcase name suffix}} = {{>data_type required="true"}};
             {{~#if pattern}}
 
             lazy_static::lazy_static! {
-                static ref {{shoutysnakecase @key suffix}}_PATTERN: regex::Regex
-                    = regex::Regex::new("{{pattern}}").expect("Regex for `{{@key}}`");
+                static ref {{shoutysnakecase ../name @key ../suffix}}_PATTERN: regex::Regex
+                    = regex::Regex::new("{{pattern}}").expect("Regex for `{{name}}`'s `{{@key}}`");
             }
 
-            fn deserialize_{{snakecase @key suffix}}<'de, D>(d: D)
+            fn deserialize_{{snakecase ../name @key ../suffix}}<'de, D>(d: D)
             {{~#if (has ../required @key)}}
             -> Result<String, D::Error>
             {{~else}}
@@ -28,14 +28,14 @@ pub type {{camelcase name suffix}} = {{>data_type required="true"}};
                 {{~#if (has ../required @key)}}
                 let res = String::deserialize(d)?;
 
-                if !{{shoutysnakecase @key suffix}}_PATTERN.is_match(&res) {
+                if !{{shoutysnakecase ../name @key ../suffix}}_PATTERN.is_match(&res) {
                     return Err(serde::de::Error::custom("Parameter `{{@key}}` does not match its required pattern"));
                 }
                 {{~else}}
                 let res = Option::<String>::deserialize(d)?;
 
                 if let Some(res) = res.as_ref() {
-                    if !{{shoutysnakecase @key suffix}}_PATTERN.is_match(&res) {
+                    if !{{shoutysnakecase ../name @key ../suffix}}_PATTERN.is_match(&res) {
                         return Err(serde::de::Error::custom("Optional parameter `{{@key}}` is present but does not match its required pattern"));
                     }
                 }
@@ -50,7 +50,7 @@ pub type {{camelcase name suffix}} = {{>data_type required="true"}};
             pub struct {{camelcase name suffix}} {
             {{~#each properties}}
                 #[serde(rename = "{{@key}}")]
-                {{#if pattern}}#[serde(deserialize_with = "deserialize_{{snakecase @key suffix}}")]{{/if}}
+                {{#if pattern}}#[serde(deserialize_with = "deserialize_{{snakecase ../name @key ../suffix}}")]{{/if}}
                 {{~#if (has ../required @key)}}
                 pub {{sanitize (snakecase @key)}}: {{>data_type name=(camelcase ../name @key) required="true"}},
                 {{~else}}
