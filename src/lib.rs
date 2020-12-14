@@ -19,5 +19,19 @@ pub fn generate_oapi_server_stubs(specification: impl AsRef<Path>,
             "Cannot render to `{}`",
             destination.as_ref().to_string_lossy()
         ))?;
+
+    log::info!("Running rustfmt on {}", &destination.as_ref().display());
+    let fmt_result = std::process::Command::new("rustfmt")
+        .arg("--emit")
+        .arg("files")
+        .arg("--edition")
+        .arg("2018")
+        .arg(destination.as_ref().to_str().unwrap())
+        .output();
+
+    if let Err(e) = fmt_result {
+        log::error!("Failed running rustfmt on {}", e)
+    }
+
     Ok(())
 }

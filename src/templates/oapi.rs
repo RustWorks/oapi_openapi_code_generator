@@ -219,7 +219,7 @@ use async_trait::async_trait;
 {{~#*inline "operation_fn_trait"}}
     async fn {{snakecase operationId}}(
         &self,
-        request: &actix_web::HttpRequest,
+        request: {{~#if security}}Self::AuthorizedData{{~else~}}HttpRequest{{~/if}},
         parameters: super::{{snakecase operationId}}::Parameters,
         {{#unless noBody~}} body: super::{{snakecase operationId}}::Body, {{~/unless}}
     ) -> Result<super::{{snakecase operationId}}::Success, super::{{snakecase operationId}}::Error<Self::Error>>;
@@ -228,12 +228,15 @@ use async_trait::async_trait;
 {{~#*inline "auth_fn_trait"}}
     async fn {{snakecase key}}(
         &self,
-        request: &actix_web::HttpRequest,
-    ) -> Result<(), Self::Error>;
+        request: actix_web::HttpRequest,
+    ) -> Result<Self::AuthorizedData, Self::Error>;
 {{~/inline}}
 
 #[async_trait(?Send)]
 pub trait {{camelcase info.title}} {
+    {{~#if components.securitySchemes }}
+    type AuthorizedData;
+    {{~/if}}
     type Error: std::error::Error;
 {{~#each paths}}
     {{~#with get}}{{~> operation_fn_trait noBody=true}}{{~/with}}
@@ -322,14 +325,15 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
     {{~#if security }}
         {{~#each security as |obj|}}
             {{~#each obj as |o  key|}}
-    if let Err(err) = server.{{snakecase key}}(&request).await {
-        return HttpResponse::Unauthorized().body(err_to_string(&err));
-    }
+                let request = match server.{{snakecase key}}(request).await {
+                    Ok(auth_data) => auth_data,
+                    Err(err) => return HttpResponse::Unauthorized().body(err_to_string(&err)),
+                };
             {{~/each}}
         {{~/each}}
     {{~/if}}
 
-    match server.{{snakecase operationId}}(&request, parameters {{~#unless noBody}}, body{{/unless}}).await {
+    match server.{{snakecase operationId}}(request, parameters {{~#unless noBody}}, body{{/unless}}).await {
         {{~#each responses}}
             {{~#if (not (eq @key "default"))}}
                 {{~#if (is_http_code_success @key)}}
