@@ -37,14 +37,39 @@ handlebars_helper!(json: |data: Json| apply_json(data));
 handlebars_helper!(is_http_code_success: |http_status: str| http_status.starts_with("1") || http_status.starts_with("2") || http_status.starts_with("3"));
 
 pub(crate) fn parse_component_path(ref_path: &str) -> String {
-    use heck::CamelCase;
+    use heck::{CamelCase, SnekCase};
+
     let mut path = Vec::new();
+    let (filename, ref_path) = {
+        let mut split = ref_path.split('#');
+        (
+            split.next().filter(|x| !x.is_empty()),
+            split.next().unwrap_or(""),
+        )
+    };
+
     let mut pointer = ref_path.parse::<JsonPointer<_, _>>().unwrap();
     while let Some(segment) = pointer.pop() {
         path.push(segment);
     }
     if let Some(name) = path.first_mut() {
         *name = name.to_camel_case()
+    }
+    if let Some(filename) = filename {
+        let name = std::path::Path::new(filename)
+            .file_stem()
+            .and_then(|x| x.to_str())
+            .expect("couldn't get the $ref file")
+            .to_snek_case();
+
+        if name.contains('.') {
+            panic!("Invalid module name `{}`", name);
+        }
+
+        path.push(name);
+
+        // FIXME: this way only components/schemas can have $refs from other files
+        path.push("super::super".to_owned());
     }
     path.reverse();
     path.join("::")
