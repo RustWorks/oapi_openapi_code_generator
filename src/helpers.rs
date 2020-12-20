@@ -69,7 +69,7 @@ pub(crate) fn parse_component_path(ref_path: &str) -> String {
         path.push(name);
 
         // FIXME: this way only components/schemas can have $refs from other files
-        path.push("super::super".to_owned());
+        path.push("super::super::super".to_owned());
     }
     path.reverse();
     path.join("::")

@@ -4,6 +4,7 @@
 
 pub const VERSION: &str = "{{info.version}}";
 
+{{#if info.title}}
 /*******************************client code*******************************/
 
 // Temporarily unused
@@ -181,6 +182,7 @@ pub const VERSION: &str = "{{info.version}}";
 // {{~/each}}
 // 
 // }
+{{/if}}
 
 /*******************************models code*******************************/
 
@@ -199,6 +201,7 @@ pub mod components {
     }
 {{~/with}}
 }
+
 {{#each paths}}
     {{~>operation_types get noBody=true}}
     {{~>operation_types head noBody=true}}
@@ -210,7 +213,7 @@ pub mod components {
     {{~>operation_types patch}}
 {{~/each}}
 
-
+{{#if info.title}}
 /*******************************server code*******************************/
 #[allow(unused_assignments, unused_imports, unused_variables)]
 pub mod server {
@@ -488,3 +491,4 @@ impl<T: OpenapiSerialization> OpenapiSerialization for Option<T> {
     })
   }
 }
+{{/if}}
