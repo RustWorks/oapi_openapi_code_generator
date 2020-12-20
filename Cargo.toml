@@ -1,6 +1,6 @@
 [package]
 name = "oapi_generator"
-version = "0.0.12"
+version = "0.0.13"
 authors = ["Ivan Bratoev <ivan.g.bratoev@gmail.com>"]
 edition = "2018"
 license = "ISC"
@@ -19,3 +19,4 @@ json-pointer = "^0.3.0"
 serde_yaml = "^0.8.0"
 log = "0.4.11"
 structopt = "0.3.21"
+openapiv3 = "0.3.2"
