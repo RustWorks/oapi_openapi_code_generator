@@ -5,11 +5,14 @@ use crate::helpers::{
 use anyhow::{Context, Result};
 use handlebars::Handlebars;
 use log;
+use openapiv3::OpenAPI;
 use std::{fs::File, path::Path};
 
 pub struct OpenApiGenerator<'a> {
     handlebars: Handlebars<'a>,
-    specs: serde_yaml::Value,
+    specs: OpenAPI,
+    // TODO
+    // version: String,
 }
 
 impl<'a> OpenApiGenerator<'a> {
@@ -17,27 +20,23 @@ impl<'a> OpenApiGenerator<'a> {
         let mut openapi_generator = Self {
             handlebars: Handlebars::new(),
             specs: Self::parse_specification(&specs_path.as_ref())?,
+            // version: env!("CARGO_PKG_VERSION").to_string(),
         };
+
         openapi_generator
             .register_partials()
             .context("Failed to register partials")?;
         openapi_generator.register_helpers();
-        let specs = openapi_generator
-            .specs
-            .as_mapping_mut()
-            .context("specification is not a mapping")?;
-        specs.insert(
-            serde_yaml::Value::String("openapi_generator_version".to_string()),
-            serde_yaml::Value::String(env!("CARGO_PKG_VERSION").to_string()),
-        );
+
         Ok(openapi_generator)
     }
 
-    fn parse_specification(specs_path: &Path) -> Result<serde_yaml::Value> {
+    fn parse_specification(specs_path: &Path) -> Result<OpenAPI> {
         let specs_string = std::fs::read_to_string(&specs_path).context(format!(
             "Cannot read specification file `{}`",
             specs_path.display()
         ))?;
+
         serde_yaml::from_str(&specs_string).context(format!(
             "Cannot parse specification file `{}`",
             specs_path.display()
