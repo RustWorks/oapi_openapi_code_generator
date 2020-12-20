@@ -1,24 +1,22 @@
 use crate::helpers::{
-    camelcase, component_path, has, json, mixedcase, sanitize, shoutysnakecase, snakecase,is_http_code_success
+    camelcase, component_path, has, is_http_code_success, json, mixedcase, sanitize,
+    shoutysnakecase, snakecase,
 };
 use anyhow::{Context, Result};
 use handlebars::Handlebars;
 use log;
-use std::{
-    fs::File,
-    path::Path
-};
+use std::{fs::File, path::Path};
 
 pub struct OpenApiGenerator<'a> {
     handlebars: Handlebars<'a>,
-    specs: serde_yaml::Value
+    specs: serde_yaml::Value,
 }
 
 impl<'a> OpenApiGenerator<'a> {
     pub fn new(specs_path: impl AsRef<Path>) -> Result<Self> {
         let mut openapi_generator = Self {
             handlebars: Handlebars::new(),
-            specs: Self::parse_specification(&specs_path.as_ref())?
+            specs: Self::parse_specification(&specs_path.as_ref())?,
         };
         openapi_generator
             .register_partials()
@@ -61,31 +59,50 @@ impl<'a> OpenApiGenerator<'a> {
             .register_helper("sanitize", Box::new(sanitize));
         self.handlebars.register_helper("has", Box::new(has));
         self.handlebars.register_helper("json", Box::new(json));
-        self.handlebars.register_helper("is_http_code_success", Box::new(is_http_code_success));
+        self.handlebars
+            .register_helper("is_http_code_success", Box::new(is_http_code_success));
     }
 
     fn register_partials(&mut self) -> Result<()> {
-
         let partials = &[
-            ("data_type", include_str!("templates/partials/data_type.hbs")),
+            (
+                "data_type",
+                include_str!("templates/partials/data_type.hbs"),
+            ),
             ("example", include_str!("templates/partials/example.hbs")),
-            ("operation_examples", include_str!("templates/partials/operation_examples.hbs")),
-            ("operation_types", include_str!("templates/partials/operation_types.hbs")),
-            ("parameter_type", include_str!("templates/partials/parameter_type.hbs")),
-            ("schema_example", include_str!("templates/partials/schema_example.hbs")),
+            (
+                "operation_examples",
+                include_str!("templates/partials/operation_examples.hbs"),
+            ),
+            (
+                "operation_types",
+                include_str!("templates/partials/operation_types.hbs"),
+            ),
+            (
+                "parameter_type",
+                include_str!("templates/partials/parameter_type.hbs"),
+            ),
+            (
+                "schema_example",
+                include_str!("templates/partials/schema_example.hbs"),
+            ),
             ("schema", include_str!("templates/partials/schema.hbs")),
-            ("subtypes_example", include_str!("templates/partials/subtypes_example.hbs")),
+            (
+                "subtypes_example",
+                include_str!("templates/partials/subtypes_example.hbs"),
+            ),
             ("subtypes", include_str!("templates/partials/subtypes.hbs")),
-            ("test_operation_client", include_str!("templates/partials/test_operation_client.hbs")),
+            (
+                "test_operation_client",
+                include_str!("templates/partials/test_operation_client.hbs"),
+            ),
         ];
 
         for (template_name, template_string) in partials {
             self.handlebars
                 .register_template_string(template_name, template_string)
                 .context(format!("Cannot register partial `{}`", template_name))?;
-            log::info!(
-                "new partial registered: {} ",
-                template_name);
+            log::info!("new partial registered: {} ", template_name);
         }
         Ok(())
     }
@@ -103,7 +120,10 @@ impl<'a> OpenApiGenerator<'a> {
                 "Failed to render template templates/oapi.rs at `{}`",
                 output_path.as_ref().display()
             ))?;
-        log::info!("render templates/oapi.rs to {}", output_path.as_ref().display());
+        log::info!(
+            "render templates/oapi.rs to {}",
+            output_path.as_ref().display()
+        );
         Ok(())
     }
 }
