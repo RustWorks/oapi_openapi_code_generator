@@ -10,7 +10,7 @@ pub mod {{snakecase operationId}} {
 
     /// Parameters for {{snakecase operationId}} operation
     {{~#if parameters}}
-    #[derive(Deserialize, Debug)]
+    #[derive(Deserialize, Debug, Default)]
     pub struct Parameters {
     {{~#each parameters}}
         {{#if description}}/// {{description}}{{/if}}
