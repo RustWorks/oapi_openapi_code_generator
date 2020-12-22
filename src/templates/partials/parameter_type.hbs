@@ -1,5 +1,5 @@
 /// {{camelcase type}} parameters for {{snakecase operationId}} operation
-#[derive(Default, Debug, Deserialize, Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct {{camelcase type}} {
 {{~#each parameters}}
     {{~#if (eq in ../type)}}
