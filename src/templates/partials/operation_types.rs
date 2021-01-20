@@ -3,13 +3,25 @@
 pub mod {{snakecase operationId}} {
     use super::components;
     use serde::{Deserialize, Serialize};
+    use regex::Regex;
 
     {{#each parameters}}
         {{~>schema name=name schema}}
     {{~/each}}
 
-    /// Parameters for {{snakecase operationId}} operation
     {{~#if parameters}}
+    lazy_static::lazy_static! {
+    {{~#each parameters}}
+    {{~#if schema.pattern}}
+        static ref {{shoutysnakecase ../operationId}}_{{shoutysnakecase name}}_PATTERN: Regex
+            = Regex::new("{{schema.pattern}}").expect("Regex for `{{../operationId}}`'s parameter `{{name}}`");
+    {{~/if}}
+    {{~/each}}
+    }
+    {{~/if}}
+
+    {{~#if parameters}}
+    /// Parameters for the `{{snakecase operationId}}` operation
     #[derive(Deserialize, Debug)]
     pub struct Parameters {
     {{~#each parameters}}
@@ -28,14 +40,39 @@ pub mod {{snakecase operationId}} {
         pub fn new(
             {{~#if (has parameters "in" "query")~}}query: Query,{{~/if}}
             {{~#if (has parameters "in" "path")~}}path: Path,{{~/if}}
-        ) -> Self {
-            Self {
+        ) -> Result<Self, serde::de::value::Error> {
+            Ok(Self {
             {{~#each parameters}}
                 {{snakecase name}}:
+                    {{~#if schema.pattern}}
+                    {{~#if (eq in "query")}} {
+                        {{~#if required}}
+                        if !{{shoutysnakecase ../operationId}}_{{shoutysnakecase name}}_PATTERN.is_match(&query.{{snakecase name}}) {
+                            return Err(serde::de::Error::custom("`{{../operationId}}`'s parameter `{{name}}` does not match its required pattern"));
+                        }
+                        {{~else}}
+                        if let Some(res) = query.{{snakecase name}}.as_ref() {
+                            if !{{shoutysnakecase ../operationId}}_{{shoutysnakecase name}}_PATTERN.is_match(&res) {
+                                return Err(serde::de::Error::custom("`{{../operationId}}`'s optional parameter `{{name}}` is present but does not match its required pattern"));
+                            }
+                        }
+                        {{~/if}}
+
+                        query.{{snakecase name}}
+                    }, {{~/if}}
+                    {{~#if (eq in "path")}} {
+                        if !{{shoutysnakecase ../operationId}}_{{shoutysnakecase name}}_PATTERN.is_match(&path.{{snakecase name}}) {
+                            return Err(serde::de::Error::custom("`{{../operationId}}`'s parameter `{{snakecase name}}` does not match its required pattern"));
+                        }
+
+                        path.{{snakecase name}}
+                    }, {{~/if}}
+                    {{~else}}
                     {{~#if (eq in "query")}} query.{{snakecase name}}, {{~/if}}
                     {{~#if (eq in "path")}} path.{{snakecase name}}, {{~/if}}
+                    {{~/if}}
             {{~/each}}
-            }
+            })
         }
 
         {{#if (has parameters "in" "query")~}}

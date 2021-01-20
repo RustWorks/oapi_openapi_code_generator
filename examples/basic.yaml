@@ -1,0 +1,78 @@
+openapi: 3.0.0
+
+info:
+  title: Sample API
+  description: Optional multiline or single-line description in [CommonMark](http://commonmark.org/help/) or HTML.
+  version: 0.1.9
+
+servers:
+  - url: http://api.example.com/v1
+    description: Optional server description, e.g. Main (production) server
+  - url: http://staging-api.example.com
+    description: Optional server description, e.g. Internal staging server for testing
+
+components:
+  schemas:
+    Complex:
+      type: object
+      required:
+        - real
+        - imaginary
+      properties:
+        realAsString:
+          type: string
+          pattern: '[0-9]{2}'
+        real:
+          type: integer
+        imaginary:
+          type: integer
+
+paths:
+  /endpoint/{param}:
+    get:
+      summary: Returns a list of strings.
+      operationId: get_users # for now operationId is required
+      description: Optional extended description in CommonMark or HTML.
+      parameters:
+        - in: path
+          name: param
+          schema:
+            type: string
+            pattern: '[a-zA-Z0-9]+'
+          required: true
+          description: An alphanumeric string
+      responses:
+        '200':
+          description: A JSON array of strings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /sum-complex:
+    post:
+      summary: Sum two complex numbers
+      operationId: sum_complex # for now operationId is required
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - x
+                - y
+              properties:
+                x:
+                  $ref: '#/components/schemas/Complex'
+                y:
+                  $ref: '#/components/schemas/Complex'
+      responses:
+        '200':
+          description: The result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Complex'
+
