@@ -50,7 +50,10 @@ pub type {{camelcase name suffix}} = {{>data_type required="true"}};
             pub struct {{camelcase name suffix}} {
             {{~#each properties}}
                 #[serde(rename = "{{@key}}")]
-                {{#if pattern}}#[serde(deserialize_with = "deserialize_{{snakecase ../name @key ../suffix}}")]{{/if}}
+                {{#if pattern}}
+                #[serde(default)]
+                #[serde(deserialize_with = "deserialize_{{snakecase ../name @key ../suffix}}")]
+                {{/if}}
                 {{~#if (has ../required @key)}}
                 pub {{sanitize (snakecase @key)}}: {{>data_type name=(camelcase ../name @key) required="true"}},
                 {{~else}}
