@@ -65,36 +65,33 @@ impl<'a> OpenApiGenerator<'a> {
 
     fn register_partials(&mut self) -> Result<()> {
         let partials = &[
-            (
-                "data_type",
-                include_str!("templates/partials/data_type.hbs"),
-            ),
-            ("example", include_str!("templates/partials/example.hbs")),
+            ("data_type", include_str!("templates/partials/data_type.rs")),
+            ("example", include_str!("templates/partials/example.rs")),
             (
                 "operation_examples",
-                include_str!("templates/partials/operation_examples.hbs"),
+                include_str!("templates/partials/operation_examples.rs"),
             ),
             (
                 "operation_types",
-                include_str!("templates/partials/operation_types.hbs"),
+                include_str!("templates/partials/operation_types.rs"),
             ),
             (
                 "parameter_type",
-                include_str!("templates/partials/parameter_type.hbs"),
+                include_str!("templates/partials/parameter_type.rs"),
             ),
             (
                 "schema_example",
-                include_str!("templates/partials/schema_example.hbs"),
+                include_str!("templates/partials/schema_example.rs"),
             ),
-            ("schema", include_str!("templates/partials/schema.hbs")),
+            ("schema", include_str!("templates/partials/schema.rs")),
             (
                 "subtypes_example",
-                include_str!("templates/partials/subtypes_example.hbs"),
+                include_str!("templates/partials/subtypes_example.rs"),
             ),
-            ("subtypes", include_str!("templates/partials/subtypes.hbs")),
+            ("subtypes", include_str!("templates/partials/subtypes.rs")),
             (
                 "test_operation_client",
-                include_str!("templates/partials/test_operation_client.hbs"),
+                include_str!("templates/partials/test_operation_client.rs"),
             ),
         ];
 
