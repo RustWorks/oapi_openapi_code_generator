@@ -32,6 +32,7 @@ case_helper!(camelcase, to_camel_case);
 case_helper!(snakecase, to_snake_case);
 case_helper!(shoutysnakecase, to_shouty_snake_case);
 handlebars_helper!(component_path: |ref_path: str| parse_component_path(ref_path));
+handlebars_helper!(patterns: |_s: str| cfg!(feature = "patterns"));
 handlebars_helper!(sanitize: |word: str| apply_sanitize(word));
 handlebars_helper!(json: |data: Json| apply_json(data));
 handlebars_helper!(is_http_code_success: |http_status: str| http_status.starts_with("1") || http_status.starts_with("2") || http_status.starts_with("3"));

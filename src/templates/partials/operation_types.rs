@@ -3,7 +3,6 @@
 pub mod {{snakecase operationId}} {
     use super::components;
     use serde::{Deserialize, Serialize};
-    use regex::Regex;
 
     {{#each parameters}}
         {{~>schema name=name schema}}
@@ -12,9 +11,9 @@ pub mod {{snakecase operationId}} {
     {{~#if parameters}}
     lazy_static::lazy_static! {
     {{~#each parameters}}
-    {{~#if schema.pattern}}
-        static ref {{shoutysnakecase ../operationId}}_{{shoutysnakecase name}}_PATTERN: Regex
-            = Regex::new("{{schema.pattern}}").expect("Regex for `{{../operationId}}`'s parameter `{{name}}`");
+    {{~#if (and (schema.pattern) (patterns ""))}}
+        static ref {{shoutysnakecase ../operationId}}_{{shoutysnakecase name}}_PATTERN: regex::Regex
+            = regex::Regex::new("{{schema.pattern}}").expect("Regex for `{{../operationId}}`'s parameter `{{name}}`");
     {{~/if}}
     {{~/each}}
     }
@@ -44,7 +43,7 @@ pub mod {{snakecase operationId}} {
             Ok(Self {
             {{~#each parameters}}
                 {{snakecase name}}:
-                    {{~#if schema.pattern}}
+                    {{~#if (and (schema.pattern) (patterns ""))}}
                     {{~#if (eq in "query")}} {
                         {{~#if required}}
                         if !{{shoutysnakecase ../operationId}}_{{shoutysnakecase name}}_PATTERN.is_match(&query.{{snakecase name}}) {

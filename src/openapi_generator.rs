@@ -1,7 +1,4 @@
-use crate::helpers::{
-    camelcase, component_path, has, is_http_code_success, json, mixedcase, sanitize,
-    shoutysnakecase, snakecase,
-};
+use crate::helpers::{camelcase, component_path, has, is_http_code_success, json, mixedcase, sanitize, shoutysnakecase, snakecase, patterns};
 use anyhow::{Context, Result};
 use handlebars::Handlebars;
 use log;
@@ -47,6 +44,8 @@ impl<'a> OpenApiGenerator<'a> {
     fn register_helpers(&mut self) {
         self.handlebars
             .register_helper("camelcase", Box::new(camelcase));
+        self.handlebars
+            .register_helper("patterns", Box::new(patterns));
         self.handlebars
             .register_helper("snakecase", Box::new(snakecase));
         self.handlebars

@@ -9,7 +9,7 @@ pub type {{camelcase name suffix}} = {{>data_type required="true"}};
         {{~#if properties~}}
 
             {{~#each properties}}
-            {{~#if pattern}}
+            {{~#if (and (pattern) (patterns ""))}}
 
             lazy_static::lazy_static! {
                 static ref {{shoutysnakecase ../name @key ../suffix}}_PATTERN: regex::Regex
@@ -50,7 +50,7 @@ pub type {{camelcase name suffix}} = {{>data_type required="true"}};
             pub struct {{camelcase name suffix}} {
             {{~#each properties}}
                 #[serde(rename = "{{@key}}")]
-                {{#if pattern}}
+                {{#if (and (pattern) (patterns ""))}}
                 #[serde(default)]
                 #[serde(deserialize_with = "deserialize_{{snakecase ../name @key ../suffix}}")]
                 {{/if}}
