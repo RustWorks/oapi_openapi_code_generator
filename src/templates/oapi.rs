@@ -200,11 +200,11 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
                         {{~/with}}
 
                         {{~#with content.[application/json]}}
-                            Ok(Success::{{camelcase "Status" @../key}}(response)) => HttpResponseBuilder::new(StatusCode::from_u16({{@../key}}).unwrap()).json(response),
+                            Ok(Success::{{camelcase "Status" @../key}}(response)) => HttpResponseBuilder::new(StatusCode::from_u16({{@../key}}).unwrap()).json(&response),
                         {{~/with}}
 
                     {{~else~}}
-                        Ok(Success::{{camelcase "Status" @key}}(response)) => HttpResponseBuilder::new(StatusCode::from_u16({{@key}}).unwrap()).json(response),
+                        Ok(Success::{{camelcase "Status" @key}}(response)) => HttpResponseBuilder::new(StatusCode::from_u16({{@key}}).unwrap()).json(&response),
                     {{~/if}}
                 {{~else~}}
                     {{~#if content}}
@@ -213,11 +213,11 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
                         {{~/with}}
 
                         {{~#with content.[application/json]}}
-                            Err(Error::{{camelcase "Status" @../key}}(response)) => HttpResponseBuilder::new(StatusCode::from_u16({{@../key}}).unwrap()).json(response),
+                            Err(Error::{{camelcase "Status" @../key}}(response)) => HttpResponseBuilder::new(StatusCode::from_u16({{@../key}}).unwrap()).json(&response),
                         {{~/with}}
 
                     {{~else~}}
-                        Err(Error::{{camelcase "Status" @key}}(response)) => HttpResponseBuilder::new(StatusCode::from_u16({{@key}}).unwrap()).json(response),
+                        Err(Error::{{camelcase "Status" @key}}(response)) => HttpResponseBuilder::new(StatusCode::from_u16({{@key}}).unwrap()).json(&response),
                     {{~/if}}
                 {{~/if}}
             {{~/if}}
