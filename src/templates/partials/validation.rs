@@ -68,7 +68,7 @@
     {{~/if}}
 
 
-    {{~#if (eq object.items.type "object")}}
+    {{~#if (or (eq object.items.type "object") (object.items.[$ref]))}}
         {{~>validation object=object.items.properties name=name key=key suffix=suffix var_name=(snakecase var_name "_" name "_inner")}}
     {{~else}}
         {{~#if (or (eq object.items.type "string") (or (eq object.items.type "number") (eq object.items.type "integer")))}}
