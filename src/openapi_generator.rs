@@ -1,4 +1,7 @@
-use crate::helpers::{camelcase, component_path, has, is_http_code_success, json, mixedcase, sanitize, shoutysnakecase, snakecase, patterns};
+use crate::helpers::{
+    camelcase, component_path, fetch_patterns, has, is_empty, is_http_code_success, json,
+    mixedcase, not_empty, patterns, sanitize, shoutysnakecase, snakecase,
+};
 use anyhow::{Context, Result};
 use handlebars::Handlebars;
 use log;
@@ -19,14 +22,17 @@ impl<'a> OpenApiGenerator<'a> {
             .register_partials()
             .context("Failed to register partials")?;
         openapi_generator.register_helpers();
+
         let specs = openapi_generator
             .specs
             .as_mapping_mut()
             .context("specification is not a mapping")?;
+
         specs.insert(
             serde_yaml::Value::String("openapi_generator_version".to_string()),
             serde_yaml::Value::String(env!("CARGO_PKG_VERSION").to_string()),
         );
+
         Ok(openapi_generator)
     }
 
@@ -57,6 +63,12 @@ impl<'a> OpenApiGenerator<'a> {
         self.handlebars
             .register_helper("sanitize", Box::new(sanitize));
         self.handlebars.register_helper("has", Box::new(has));
+        self.handlebars
+            .register_helper("fetch_patterns", Box::new(fetch_patterns));
+        self.handlebars
+            .register_helper("is_empty", Box::new(is_empty));
+        self.handlebars
+            .register_helper("not_empty", Box::new(not_empty));
         self.handlebars.register_helper("json", Box::new(json));
         self.handlebars
             .register_helper("is_http_code_success", Box::new(is_http_code_success));
@@ -91,6 +103,10 @@ impl<'a> OpenApiGenerator<'a> {
             (
                 "test_operation_client",
                 include_str!("templates/partials/test_operation_client.rs"),
+            ),
+            (
+                "validation",
+                include_str!("templates/partials/validation.rs"),
             ),
         ];
 
