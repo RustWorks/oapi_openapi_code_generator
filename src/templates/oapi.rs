@@ -57,7 +57,7 @@ pub mod components {
 #[allow(unused_assignments, unused_imports, unused_variables)]
 pub mod server {
 
-use actix_web::{web::*, Responder, HttpResponse, dev::HttpResponseBuilder, http::StatusCode};
+use actix_web::{web::*, Responder, HttpResponse, HttpResponseBuilder, http::StatusCode, error::InternalError};
 use async_trait::async_trait;
 
 {{~#*inline "operation_fn_trait"}}
@@ -283,9 +283,9 @@ pub fn config<Server: {{camelcase info.title}} + 'static>(
     {{~/each}}
         .app_data(actix_web::web::JsonConfig::default()
             .error_handler(|err, _| {
-                actix_web::HttpResponse::BadRequest()
-                    .body(err_to_string(&err))
-                    .into()
+                let mut response = HttpResponseBuilder::new(StatusCode::BAD_REQUEST);
+                response.body(err_to_string(&err));
+                InternalError::from_response(err, response.into()).into()
             })
         );
 }
