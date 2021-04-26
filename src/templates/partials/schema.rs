@@ -121,7 +121,9 @@ pub type {{camelcase name suffix}} = {{>data_type required="true"}};
                         )
                     )
                 )}}
+                {{~#if (not (has ../required @key))}}
                 #[serde(default)]
+                {{~/if}}
                 #[serde(deserialize_with = "deserialize_{{snakecase ../name @key ../suffix}}")]
                 {{/if}}
                 {{~#if (has ../required @key)}}
