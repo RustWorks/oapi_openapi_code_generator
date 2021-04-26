@@ -8,36 +8,79 @@ pub type {{camelcase name suffix}} = {{>data_type required="true"}};
     {{~#if (eq type "object")~}}
         {{~#if properties~}}
 
-            {{~#each properties}}
-            {{~#if (and (pattern) (patterns ""))}}
+            {{~#if (not_empty (fetch_patterns properties))}}
+                lazy_static::lazy_static! {
+                {{~#each (fetch_patterns properties)}}
+                    static ref {{shoutysnakecase ../name @key ../suffix}}_PATTERN: regex::Regex
+                            = regex::Regex::new("{{this}}").expect("Regex for `{{../name}}{{../suffix}}`'s parameter `{{@key}}`");
+                {{~/each}}
+                }
+            {{~/if}}
 
-            lazy_static::lazy_static! {
-                static ref {{shoutysnakecase ../name @key ../suffix}}_PATTERN: regex::Regex
-                    = regex::Regex::new("{{pattern}}").expect("Regex for `{{../name}}{{../suffix}}`'s parameter `{{@key}}`");
-            }
+            {{~#each properties}}
+
+            {{~#if (or
+                (or
+                    (and (pattern) (patterns ""))
+                    (and
+                         (or
+                            (eq type "string")
+                            (or (eq type "integer") (eq type "number"))
+                         )
+                         (or
+                            (not_empty minLength)
+                            (not_empty maxLength)
+                         )
+                    )
+                )
+                (or
+                    (and
+                         (or (eq type "integer") (eq type "number"))
+                         (or (not_empty minimum) (not_empty maximum))
+                    )
+                    (and
+                         (eq type "array")
+                         (or
+                            (not_empty (fetch_patterns items))
+                            (or (not_empty minItems) (not_empty maxItems))
+                         )
+                    )
+                )
+            )}}
 
             fn deserialize_{{snakecase ../name @key ../suffix}}<'de, D>(d: D)
-            {{~#if (has ../required @key)}}
-            -> Result<String, D::Error>
-            {{~else}}
-            -> Result<Option<String>, D::Error>
-            {{~/if}}
+            -> Result<
+                {{~#if (not (has ../required @key))}}
+                Option<
+                {{~/if}}
+                    {{~#if (eq type "string")}}String{{~/if}}
+                    {{~#if (eq type "integer")}}i64{{~/if}}
+                    {{~#if (eq type "number")}}i64{{~/if}}
+                    {{~#if (eq type "array")}}{{>data_type name=(camelcase ../name @key) required="true"}}{{~/if}}
+                {{~#if (not (has ../required @key))}}
+                >
+                {{~/if}}
+                , D::Error>
             where
                 D: serde::de::Deserializer<'de>,
             {
                 {{~#if (has ../required @key)}}
-                let res = String::deserialize(d)?;
-
-                if !{{shoutysnakecase ../name @key ../suffix}}_PATTERN.is_match(&res) {
-                    return Err(serde::de::Error::custom(format!("`{{../name}}{{../suffix}}`'s parameter `{{@key}}` does not match its required pattern - passed value [{}]", &res)));
-                }
+                let res: {{>data_type name=(camelcase ../name @key) required="true"}} =
+                            {{~#if (eq type "string")}}String{{~/if}}
+                            {{~#if (eq type "integer")}}i64{{~/if}}
+                            {{~#if (eq type "number")}}i64{{~/if}}
+                            {{~#if (eq type "array")}}Vec::<_>{{~/if}}::deserialize(d)?;
                 {{~else}}
-                let res = Option::<String>::deserialize(d)?;
-
+                let res: {{>data_type name=(camelcase ../name @key)}} = Option::<
+                {{~#if (eq type "string")}}String{{~/if}}
+                {{~#if (eq type "integer")}}i64{{~/if}}
+                {{~#if (eq type "number")}}i64{{~/if}}
+                {{~#if (eq type "array")}}Vec<_>{{~/if}}
+                >::deserialize(d)?;
                 if let Some(res) = res.as_ref() {
-                    if !{{shoutysnakecase ../name @key ../suffix}}_PATTERN.is_match(&res) {
-                        return Err(serde::de::Error::custom(format!("`{{../name}}{{../suffix}}`'s optional parameter `{{@key}}` is present but does not match its required pattern - passed value [{}]", &res)));
-                    }
+                {{~/if}}
+                {{>validation object=this name=../name key=@key suffix=../suffix var_name="res"}}
+                {{~#if (not (has ../required @key))}}
                 }
                 {{~/if}}
 
@@ -50,8 +93,37 @@ pub type {{camelcase name suffix}} = {{>data_type required="true"}};
             pub struct {{camelcase name suffix}} {
             {{~#each properties}}
                 #[serde(rename = "{{@key}}")]
-                {{#if (and (pattern) (patterns ""))}}
+                {{~#if (or
+                    (or
+                        (and (pattern) (patterns ""))
+                        (and
+                            (or
+                                (eq type "string")
+                                (or (eq type "integer") (eq type "number"))
+                            )
+                            (or
+                                (not_empty minLength)
+                                (not_empty maxLength)
+                            )
+                        )
+                    )
+                    (or
+                        (and
+                            (or (eq type "integer") (eq type "number"))
+                            (or (not_empty minimum) (not_empty maximum))
+                        )
+                        (and
+                            (eq type "array")
+                            (or
+                                (not_empty (fetch_patterns items))
+                                (or (not_empty minItems) (not_empty maxItems))
+                            )
+                        )
+                    )
+                )}}
+                {{~#if (not (has ../required @key))}}
                 #[serde(default)]
+                {{~/if}}
                 #[serde(deserialize_with = "deserialize_{{snakecase ../name @key ../suffix}}")]
                 {{/if}}
                 {{~#if (has ../required @key)}}
