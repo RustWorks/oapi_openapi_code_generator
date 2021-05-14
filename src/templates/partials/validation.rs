@@ -71,9 +71,21 @@
     {{~#if (or (eq object.items.type "object") (object.items.[$ref]))}}
         {{~>validation object=object.items.properties name=name key=key suffix=suffix var_name=(snakecase var_name "_" name "_inner")}}
     {{~else}}
-        {{~#if (or (eq object.items.type "string") (or (eq object.items.type "number") (eq object.items.type "integer")))}}
+        {{~#if (and
+                    (or
+                        (or (eq object.items.type "string") (eq object.items.type "array"))
+                        (or (eq object.items.type "number") (eq object.items.type "integer"))
+                    )
+                    (or
+                        (or (not_empty object.items.minLength) (not_empty object.items.maxLength))
+                        (or
+                            (or (not_empty object.items.minItems) (not_empty object.items.maxItems))
+                            (or (not_empty object.items.minimum) (not_empty object.items.maximum))
+                        )
+                    )
+        )}}
             {
-                for {{(snakecase var_name "_value")}} in {{var_name}} {
+                for {{(snakecase var_name "_value")}} in {{var_name}}.iter() {
                     {{~>validation object=object.items name=name key=key suffix=suffix var_name=(snakecase var_name "_value")}}
                 }
             }
