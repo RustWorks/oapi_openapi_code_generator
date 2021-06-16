@@ -21,7 +21,7 @@ pub mod {{snakecase operationId}} {
 
     {{~#if parameters}}
     /// Parameters for the `{{snakecase operationId}}` operation
-    #[derive(Deserialize, Debug)]
+    #[derive(Serialize, Deserialize, Debug)]
     pub struct Parameters {
     {{~#each parameters}}
         {{#if description}}/// {{description}}{{/if}}
@@ -29,6 +29,7 @@ pub mod {{snakecase operationId}} {
     {{~/each}}
     }
     {{~else}}
+    #[derive(Serialize)]
     pub struct Parameters;
     {{~/if}}
 
@@ -109,7 +110,7 @@ pub mod {{snakecase operationId}} {
             {{~#with requestBody.content.[application/json]}}{{~>schema name="Body" description=../description schema}}{{~/with}}
             {{~#with requestBody.content.[multipart/form-data]}}{{~>schema name="Body" description=../description schema}}{{~/with}}
         {{~else~}}
-            #[derive(Deserialize)]
+            #[derive(Serialize, Deserialize)]
             pub struct Body;
         {{~/if}}
     {{~/unless}}
