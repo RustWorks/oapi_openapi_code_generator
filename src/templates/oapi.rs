@@ -59,10 +59,23 @@ pub mod server {
 
 use actix_web::{web::*, Responder, HttpResponse, HttpResponseBuilder, http::StatusCode, error::InternalError};
 use async_trait::async_trait;
+use serde::{Deserialize, Serialize};
+
+/// This structure is aiming to deliver the already serialized content, so we can avoid serializing
+/// it twice and wasting time, after we've passed the separate parts to the endpoint method.
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
+pub struct PayloadRawParts {
+    pub raw_uri: String,
+    pub raw_body: Option<String>,
+    // NOTE: Questionable if this should be in that struct at all. It could potentially result into
+    // doubled allocation, because `Body::try_from` is consuming.
+    // pub raw_data: Option<HashMap<String, Vec<Bytes>>>
+}
 
 {{~#*inline "operation_fn_trait"}}
     async fn {{snakecase operationId}}(
         &self,
+        payload: PayloadRawParts,
         request: {{~#if security}}Self::AuthorizedData{{~else~}}HttpRequest{{~/if}},
         parameters: super::{{snakecase operationId}}::Parameters,
         {{#unless noBody~}} body: super::{{snakecase operationId}}::Body, {{~/unless}}
@@ -113,10 +126,10 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
 
     {{~#if (and requestBody (not noBody))}}
         {{~#with requestBody.content.[application/x-www-form-urlencoded]}}
-            body: Form<super::{{snakecase ../operationId}}::Body>,
+            body: Bytes,
         {{~/with}}
         {{~#with requestBody.content.[application/json]}}
-            body: Json<super::{{snakecase ../operationId}}::Body>,
+            body: Bytes,
         {{~/with}}
         {{~#with requestBody.content.[multipart/form-data]}}
             mut payload: Multipart,
@@ -137,11 +150,19 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
         {{~#if requestBody}}
 
             {{~#with requestBody.content.[application/json]}}
-                let body = body.into_inner();
+                let body_str = String::from_utf8_lossy(&body);
+                let body = match serde_json::from_str(body_str.as_ref()) {
+                    Ok(body) => body,
+                    Err(e) => return HttpResponse::BadRequest().body(err_to_string(&e))
+                };
             {{~/with}}
 
             {{~#with requestBody.content.[application/x-www-form-urlencoded]}}
-                let body = body.into_inner();
+                let body_str = String::from_utf8_lossy(&body);
+                let body = match serde_urlencoded::from_str(body_str.as_ref()) {
+                    Ok(body) => body,
+                    Err(e) => return HttpResponse::BadRequest().body(err_to_string(&e))
+                };
             {{~/with}}
 
             {{~#with requestBody.content.[multipart/form-data]}}
@@ -170,6 +191,22 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
         {{~/if}}
     {{~/unless}}
 
+    let payload_raw = PayloadRawParts {
+        raw_uri: request.uri().to_string(),
+        raw_body:
+            {{~#if (and requestBody (not noBody))}}
+                {{~#with requestBody.content.[application/json]}}
+                Some(body_str.to_string())
+                {{~/with}}
+
+                {{~#with requestBody.content.[application/x-www-form-urlencoded]}}
+                Some(body_str.to_string())
+                {{~/with}}
+            {{~else~}}
+                None
+            {{~/if}}
+        };
+
     {{~#if security }}
         {{~#each security as |obj|}}
             {{~#each obj as |o  key|}}
@@ -181,7 +218,7 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
         {{~/each}}
     {{~/if}}
 
-    match server.{{snakecase operationId}}(request, parameters {{~#unless noBody}}, body{{/unless}}).await {
+    match server.{{snakecase operationId}}(payload_raw, request, parameters {{~#unless noBody}}, body{{/unless}}).await {
         {{~#each responses}}
             {{~#if (not (eq @key "default"))}}
                 {{~#if (is_http_code_success @key)}}
