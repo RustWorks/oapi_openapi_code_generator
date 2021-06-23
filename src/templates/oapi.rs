@@ -240,6 +240,10 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
                             Ok(Success::{{camelcase "Status" @../key}}(response)) => HttpResponseBuilder::new(StatusCode::from_u16({{@../key}}).unwrap()).json(&response),
                         {{~/with}}
 
+                        {{~#with content.[application/yaml]}}
+                            Ok(Success::{{camelcase "Status" @../key}}(response)) => HttpResponseBuilder::new(StatusCode::from_u16({{@../key}}).unwrap()).content_type("application/yaml").body(response),
+                        {{~/with}}
+
                     {{~else~}}
                         Ok(Success::{{camelcase "Status" @key}}(response)) => HttpResponseBuilder::new(StatusCode::from_u16({{@key}}).unwrap()).json(&response),
                     {{~/if}}
