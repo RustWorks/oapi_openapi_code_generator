@@ -131,6 +131,7 @@ pub mod {{snakecase operationId}} {
             {{~#with content.[image/jpeg]}}{{~>schema name=(camelcase "Response" @../key) description=../description schema}}{{~/with}}
             {{~#with content.[text/plain]}}{{~>schema name=(camelcase "Response" @../key) description=../description schema}}{{~/with}}
             {{~#with content.[application/json]}}{{~>schema name=(camelcase "Response" @../key) description=../description schema}}{{~/with}}
+            {{~#with content.[application/yaml]}}{{~>schema name=(camelcase "Response" @../key) description=../description schema}}{{~/with}}
         {{~/if }}
         {{~#if (not content)}}
             {{~>schema name=(camelcase "Response" @key) description=description}}
