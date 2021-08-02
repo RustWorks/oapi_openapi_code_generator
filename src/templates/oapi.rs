@@ -86,6 +86,7 @@ pub struct PayloadRawParts {
     async fn {{snakecase key}}(
         &self,
         request: actix_web::HttpRequest,
+        payload: &PayloadRawParts,
     ) -> Result<Self::AuthorizedData, Self::Error>;
 {{~/inline}}
 
@@ -210,7 +211,7 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
     {{~#if security }}
         {{~#each security as |obj|}}
             {{~#each obj as |o  key|}}
-                let request = match server.{{snakecase key}}(request).await {
+                let request = match server.{{snakecase key}}(request, &payload_raw).await {
                     Ok(auth_data) => auth_data,
                     Err(err) => return HttpResponse::Unauthorized().body(err_to_string(&err)),
                 };
