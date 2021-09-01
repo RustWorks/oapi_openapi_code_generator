@@ -90,6 +90,7 @@ pub type {{camelcase name suffix}} = {{>data_type required="true"}};
             {{~/each}}
 
             #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+            #[serde(deny_unknown_fields)]
             pub struct {{camelcase name suffix}} {
             {{~#each properties}}
                 #[serde(rename = "{{@key}}")]
