@@ -142,7 +142,10 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
 ) -> impl Responder {
     use super::{{snakecase operationId}}::*;
 
-    let handle_error = <Server as {{camelcase title}}>::handle_error;
+    // just a hack
+    fn handle_error<E: std::error::Error>(e: &E) -> actix_web::body::AnyBody {
+        <Server as {{camelcase title}}>::handle_error(e)
+    }
 
     let parameters = match Parameters::new(
         {{~#if (has parameters "in" "query")~}}query.into_inner(),{{~/if}}
