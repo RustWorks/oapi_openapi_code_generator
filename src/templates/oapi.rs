@@ -235,19 +235,7 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
                 let request = match server.{{snakecase key}}(request, &payload_raw).await {
                     Ok(auth_data) => auth_data,
                     Err(e) => return HttpResponse::Unauthorized()
-                        {{~#if (and requestBody (not noBody))}}
-                        .content_type(
-                            {{~#with requestBody.content.[application/x-www-form-urlencoded]}}
-                                "application/x-www-form-urlencoded"
-                            {{~/with}}
-                            {{~#with requestBody.content.[application/json]}}
-                                "application/json"
-                            {{~/with}}
-                            {{~#with requestBody.content.[multipart/form-data]}}
-                                "multipart/form-data"
-                            {{~/with}}
-                        )
-                        {{~/if}}
+                        .content_type("application/json")
                         .body(<Server as {{camelcase title}}>::handle_error(&e)),
                 };
             {{~/each}}
