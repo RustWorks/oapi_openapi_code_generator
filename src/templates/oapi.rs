@@ -173,7 +173,7 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
                     Ok(body) => body,
                     Err(e) => return HttpResponse::BadRequest()
                         .content_type("application/json")
-                        .body(<Server as {{camelcase @../../../title}}>::handle_error(e)),
+                        .body(<Server as {{camelcase @../../title}}>::handle_error(e)),
                 };
             {{~/with}}
 
@@ -183,7 +183,7 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
                     Ok(body) => body,
                     Err(e) => return HttpResponse::BadRequest()
                         .content_type("application/x-www-form-urlencoded")
-                        .body(<Server as {{camelcase @../../../title}}>::handle_error(e)),
+                        .body(<Server as {{camelcase @../../title}}>::handle_error(e)),
                 };
             {{~/with}}
 
