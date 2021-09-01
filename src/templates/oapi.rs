@@ -96,6 +96,9 @@ pub trait {{camelcase info.title}} {
     type AuthorizedData;
     {{~/if}}
     type Error: std::error::Error;
+
+    fn handle_error<E: std::error::Error>(e: &E) -> actix_web::body::AnyBody;
+
 {{~#each paths}}
     {{~#with get}}{{~> operation_fn_trait noBody=true}}{{~/with}}
     {{~#with head}}{{~> operation_fn_trait noBody=true}}{{~/with}}
@@ -144,7 +147,21 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
         {{~#if (has parameters "in" "path")~}}path.into_inner(),{{~/if}}
     ) {
         Ok(x) => x,
-        Err(err) => return HttpResponse::BadRequest().body(err_to_string(&err)),
+        Err(err) => return HttpResponse::BadRequest()
+            {{~#if (and requestBody (not noBody))}}
+            .content_type(
+                {{~#with requestBody.content.[application/x-www-form-urlencoded]}}
+                    "application/x-www-form-urlencoded"
+                {{~/with}}
+                {{~#with requestBody.content.[application/json]}}
+                    "application/json"
+                {{~/with}}
+                {{~#with requestBody.content.[multipart/form-data]}}
+                    "multipart/form-data"
+                {{~/with}}
+            )
+            {{~/if}}
+            .body(<Server as {{camelcase title}}>::handle_error(&err)),
     };
 
     {{~#unless noBody}}
@@ -154,7 +171,21 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
                 let body_str = String::from_utf8_lossy(&body);
                 let body = match serde_json::from_str(body_str.as_ref()) {
                     Ok(body) => body,
-                    Err(e) => return HttpResponse::BadRequest().body(err_to_string(&e))
+                    Err(e) => return HttpResponse::BadRequest()
+                        {{~#if (and requestBody (not noBody))}}
+                        .content_type(
+                            {{~#with requestBody.content.[application/x-www-form-urlencoded]}}
+                                "application/x-www-form-urlencoded"
+                            {{~/with}}
+                            {{~#with requestBody.content.[application/json]}}
+                                "application/json"
+                            {{~/with}}
+                            {{~#with requestBody.content.[multipart/form-data]}}
+                                "multipart/form-data"
+                            {{~/with}}
+                        )
+                        {{~/if}}
+                        .body(<Server as {{camelcase title}}>::handle_error(&e)),
                 };
             {{~/with}}
 
@@ -162,7 +193,21 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
                 let body_str = String::from_utf8_lossy(&body);
                 let body = match serde_urlencoded::from_str(body_str.as_ref()) {
                     Ok(body) => body,
-                    Err(e) => return HttpResponse::BadRequest().body(err_to_string(&e))
+                    Err(e) => return HttpResponse::BadRequest()
+                        {{~#if (and requestBody (not noBody))}}
+                        .content_type(
+                            {{~#with requestBody.content.[application/x-www-form-urlencoded]}}
+                                "application/x-www-form-urlencoded"
+                            {{~/with}}
+                            {{~#with requestBody.content.[application/json]}}
+                                "application/json"
+                            {{~/with}}
+                            {{~#with requestBody.content.[multipart/form-data]}}
+                                "multipart/form-data"
+                            {{~/with}}
+                        )
+                        {{~/if}}
+                        .body(<Server as {{camelcase title}}>::handle_error(&e)),
                 };
             {{~/with}}
 
@@ -213,7 +258,21 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
             {{~#each obj as |o  key|}}
                 let request = match server.{{snakecase key}}(request, &payload_raw).await {
                     Ok(auth_data) => auth_data,
-                    Err(err) => return HttpResponse::Unauthorized().body(err_to_string(&err)),
+                    Err(e) => return HttpResponse::Unauthorized()
+                        {{~#if (and requestBody (not noBody))}}
+                        .content_type(
+                            {{~#with requestBody.content.[application/x-www-form-urlencoded]}}
+                                "application/x-www-form-urlencoded"
+                            {{~/with}}
+                            {{~#with requestBody.content.[application/json]}}
+                                "application/json"
+                            {{~/with}}
+                            {{~#with requestBody.content.[multipart/form-data]}}
+                                "multipart/form-data"
+                            {{~/with}}
+                        )
+                        {{~/if}}
+                        .body(<Server as {{camelcase title}}>::handle_error(&e)),
                 };
             {{~/each}}
         {{~/each}}
@@ -264,7 +323,22 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
                 {{~/if}}
             {{~/if}}
         {{~/each}}
-        Err(Error::Unknown(err)) => HttpResponse::InternalServerError().body(err_to_string(&err)),
+        Err(Error::Unknown(err)) =>
+            HttpResponse::Unauthorized()
+                {{~#if (and requestBody (not noBody))}}
+                .content_type(
+                    {{~#with requestBody.content.[application/x-www-form-urlencoded]}}
+                        "application/x-www-form-urlencoded"
+                    {{~/with}}
+                    {{~#with requestBody.content.[application/json]}}
+                        "application/json"
+                    {{~/with}}
+                    {{~#with requestBody.content.[multipart/form-data]}}
+                        "multipart/form-data"
+                    {{~/with}}
+                )
+                {{~/if}}
+                .body(<Server as {{camelcase title}}>::handle_error(&err)),
     }
 }
 {{~/inline}}
