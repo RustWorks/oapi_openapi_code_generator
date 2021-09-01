@@ -172,19 +172,7 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
                 let body = match serde_json::from_str(body_str.as_ref()) {
                     Ok(body) => body,
                     Err(e) => return HttpResponse::BadRequest()
-                        {{~#if (and requestBody (not noBody))}}
-                        .content_type(
-                            {{~#with requestBody.content.[application/x-www-form-urlencoded]}}
-                                "application/x-www-form-urlencoded"
-                            {{~/with}}
-                            {{~#with requestBody.content.[application/json]}}
-                                "application/json"
-                            {{~/with}}
-                            {{~#with requestBody.content.[multipart/form-data]}}
-                                "multipart/form-data"
-                            {{~/with}}
-                        )
-                        {{~/if}}
+                        .content_type("application/json")
                         .body(<Server as {{camelcase title}}>::handle_error(&e)),
                 };
             {{~/with}}
@@ -194,19 +182,7 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
                 let body = match serde_urlencoded::from_str(body_str.as_ref()) {
                     Ok(body) => body,
                     Err(e) => return HttpResponse::BadRequest()
-                        {{~#if (and requestBody (not noBody))}}
-                        .content_type(
-                            {{~#with requestBody.content.[application/x-www-form-urlencoded]}}
-                                "application/x-www-form-urlencoded"
-                            {{~/with}}
-                            {{~#with requestBody.content.[application/json]}}
-                                "application/json"
-                            {{~/with}}
-                            {{~#with requestBody.content.[multipart/form-data]}}
-                                "multipart/form-data"
-                            {{~/with}}
-                        )
-                        {{~/if}}
+                        .content_type("application/x-www-form-urlencoded")
                         .body(<Server as {{camelcase title}}>::handle_error(&e)),
                 };
             {{~/with}}
@@ -325,19 +301,7 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
         {{~/each}}
         Err(Error::Unknown(err)) =>
             HttpResponse::Unauthorized()
-                {{~#if (and requestBody (not noBody))}}
-                .content_type(
-                    {{~#with requestBody.content.[application/x-www-form-urlencoded]}}
-                        "application/x-www-form-urlencoded"
-                    {{~/with}}
-                    {{~#with requestBody.content.[application/json]}}
-                        "application/json"
-                    {{~/with}}
-                    {{~#with requestBody.content.[multipart/form-data]}}
-                        "multipart/form-data"
-                    {{~/with}}
-                )
-                {{~/if}}
+                .content_type("application/json")
                 .body(<Server as {{camelcase title}}>::handle_error(&err)),
     }
 }
