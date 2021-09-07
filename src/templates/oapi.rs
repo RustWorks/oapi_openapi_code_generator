@@ -96,8 +96,9 @@ pub trait {{camelcase info.title}} {
     type AuthorizedData;
     {{~/if}}
     type Error: std::error::Error;
+    type HandlerResult: actix_web::Responder;
 
-    fn handle_error<E: std::error::Error>(e: &E) -> actix_web::body::AnyBody;
+    fn handle_error<E: std::error::Error>(e: &E) -> Self::HandlerResult;
 
 {{~#each paths}}
     {{~#with get}}{{~> operation_fn_trait noBody=true}}{{~/with}}
@@ -161,7 +162,7 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
                 {{~/with}}
             )
             {{~/if}}
-            .body(<Server as {{camelcase title}}>::handle_error(&err)),
+            .body(<Server as {{camelcase ../title}}>::handle_error(&err)),
     };
 
     {{~#unless noBody}}
@@ -173,7 +174,7 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
                     Ok(body) => body,
                     Err(e) => return HttpResponse::BadRequest()
                         .content_type("application/json")
-                        .body(<Server as {{camelcase title}}>::handle_error(&e)),
+                        .body(<Server as {{camelcase ../title}}>::handle_error(&e)),
                 };
             {{~/with}}
 
@@ -183,7 +184,7 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
                     Ok(body) => body,
                     Err(e) => return HttpResponse::BadRequest()
                         .content_type("application/x-www-form-urlencoded")
-                        .body(<Server as {{camelcase title}}>::handle_error(&e)),
+                        .body(<Server as {{camelcase ../title}}>::handle_error(&e)),
                 };
             {{~/with}}
 
@@ -236,7 +237,7 @@ async fn {{snakecase operationId}}<Server: {{camelcase title}}>(
                     Ok(auth_data) => auth_data,
                     Err(e) => return HttpResponse::Unauthorized()
                         .content_type("application/json")
-                        .body(<Server as {{camelcase title}}>::handle_error(&e)),
+                        .body(<Server as {{camelcase ../../title}}>::handle_error(&e)),
                 };
             {{~/each}}
         {{~/each}}
