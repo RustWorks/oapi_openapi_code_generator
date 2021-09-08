@@ -96,7 +96,7 @@ pub trait {{camelcase info.title}} {
     type AuthorizedData;
     {{~/if}}
     type Error: std::error::Error;
-    type HandlerResult: actix_web::Responder;
+    type HandlerResult: Into<actix_web::body::AnyBody>;
 
     fn handle_error<E: std::error::Error>(e: &E) -> Self::HandlerResult;
 
