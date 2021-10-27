@@ -1,8 +1,8 @@
 {{~>subtypes name=name}}
+{{~#if [$ref]~}}
 {{~#if description~}}
 /// {{description}}
 {{/if}}
-{{~#if [$ref]~}}
 pub type {{camelcase name suffix}} = {{>data_type required="true"}};
 {{~else}}
     {{~#if (eq type "object")~}}
